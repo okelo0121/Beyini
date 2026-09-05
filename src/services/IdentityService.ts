@@ -10,15 +10,65 @@ export interface IdentityCommitment {
 
 export class IdentityService {
   /**
-   * Normalizes an identifier (phone number, email, or username)
+   * Detects the type of recipient identifier
    */
-  public static normalizeIdentifier(rawIdentifier: string): string {
-    const trimmed = rawIdentifier.trim().toLowerCase();
-    // If phone number, strip hyphens, spaces, and brackets
+  public static detectIdentityType(raw: string): 'twitter' | 'discord' | 'email' | 'phone' | 'username' {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('discord:') || trimmed.includes('#') && !trimmed.includes('@')) {
+      return 'discord';
+    }
+    if (trimmed.startsWith('@') || trimmed.includes('x.com/') || trimmed.includes('twitter.com/')) {
+      return 'twitter';
+    }
+    if (trimmed.includes('@') && trimmed.includes('.')) {
+      return 'email';
+    }
     if (trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-\(\)]/g, ''))) {
+      return 'phone';
+    }
+    return 'username';
+  }
+
+  /**
+   * Normalizes an identifier (X/Twitter, Discord, phone number, email, or username)
+   */
+  public static normalizeIdentifier(
+    rawIdentifier: string,
+    explicitType?: 'twitter' | 'discord' | 'email' | 'phone' | 'username'
+  ): string {
+    const type = explicitType || this.detectIdentityType(rawIdentifier);
+    let trimmed = rawIdentifier.trim().toLowerCase();
+
+    if (type === 'twitter') {
+      // Strip https://x.com/ or https://twitter.com/
+      trimmed = trimmed.replace(/^(?:https?:\/\/)?(?:www\.)?(?:x\.com|twitter\.com)\//i, '');
+      // Strip leading @
+      trimmed = trimmed.replace(/^@+/, '');
+      // Strip any query params or trailing slashes
+      trimmed = trimmed.split('?')[0].replace(/\/+$/, '');
+      return trimmed.trim();
+    }
+
+    if (type === 'discord') {
+      // Strip discord: prefix
+      trimmed = trimmed.replace(/^discord:/i, '');
+      // Strip leading @
+      trimmed = trimmed.replace(/^@+/, '');
+      // Strip legacy #0000 discriminator
+      trimmed = trimmed.replace(/#\d{4}$/, '');
+      return trimmed.trim();
+    }
+
+    if (type === 'phone' || trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-\(\)]/g, ''))) {
       return trimmed.replace(/[\s\-\(\)]/g, '');
     }
-    return trimmed;
+
+    if (type === 'email') {
+      return trimmed.replace(/^mailto:/i, '');
+    }
+
+    // Default username (strip @ if present)
+    return trimmed.replace(/^@+/, '');
   }
 
   /**
@@ -34,13 +84,12 @@ export class IdentityService {
    */
   public static generateSecretSalt(): `0x${string}` {
     const randomBytes = new Uint8Array(32);
-    if (typeof window !== 'undefined' && window.crypto) {
-      window.crypto.getRandomValues(randomBytes);
+    if (typeof globalThis !== 'undefined' && globalThis.crypto && globalThis.crypto.getRandomValues) {
+      globalThis.crypto.getRandomValues(randomBytes);
     } else {
-      // Fallback for Node/test environment
-      const crypto = require('crypto');
-      const buf = crypto.randomBytes(32);
-      return `0x${buf.toString('hex')}` as `0x${string}`;
+      for (let i = 0; i < 32; i++) {
+        randomBytes[i] = Math.floor(Math.random() * 256);
+      }
     }
     const hex = Array.from(randomBytes)
       .map((b) => b.toString(16).padStart(2, '0'))

@@ -49,7 +49,7 @@ export const privyConfig: PrivyClientConfig = {
     showWalletLoginFirst: false, // Prioritize email, phone, and social login
     walletList: ['metamask', 'rabby_wallet', 'rainbow'],
   },
-  loginMethods: ['email', 'sms', 'google', 'passkey', 'wallet'],
+  loginMethods: ['email', 'sms', 'google', 'twitter', 'discord', 'passkey', 'wallet'],
   embeddedWallets: {
     ethereum: {
       createOnLogin: 'users-without-wallets',

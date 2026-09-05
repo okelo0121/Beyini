@@ -26,7 +26,7 @@ export const SendView: React.FC<SendViewProps> = ({
           </h1>
 
           <p className="by-send-subtitle">
-            Send to anyone using their email, phone number or @username. They choose how to receive it.
+            Send to anyone using their X handle (@username), Discord, email, or phone. They authenticate and claim directly to their Monad smart account.
           </p>
 
           {/* Primary Recipient Input */}

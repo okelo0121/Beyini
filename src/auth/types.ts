@@ -1,6 +1,8 @@
 export type AuthProviderType = 
   | 'privy_email' 
   | 'privy_google' 
+  | 'privy_twitter'
+  | 'privy_discord'
   | 'privy_phone' 
   | 'privy_passkey' 
   | 'web3_wallet';
@@ -10,6 +12,8 @@ export interface BeyiniUser {
   walletAddress: string;
   email?: string;
   phone?: string;
+  twitterUsername?: string;
+  discordUsername?: string;
   displayName: string;
   avatarUrl?: string;
   authProvider: AuthProviderType;
@@ -26,7 +30,8 @@ export interface AuthState {
 }
 
 export interface LoginOptions {
-  method?: 'email' | 'google' | 'sms' | 'passkey' | 'wallet';
+  method?: 'email' | 'google' | 'twitter' | 'discord' | 'sms' | 'passkey' | 'wallet';
   email?: string;
   phone?: string;
 }
+

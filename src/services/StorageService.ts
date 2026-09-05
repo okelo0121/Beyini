@@ -10,7 +10,7 @@ export interface PaymentRecord {
   payment_id: string;
   contract_payment_id: `0x${string}`;
   sender_address: string;
-  recipient_identity_type: 'email' | 'phone' | 'username';
+  recipient_identity_type: 'email' | 'phone' | 'username' | 'twitter' | 'discord';
   recipient_identity_value: string;
   recipient_identity_commitment: `0x${string}`;
   amount: number;

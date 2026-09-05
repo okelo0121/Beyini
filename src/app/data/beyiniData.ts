@@ -6,7 +6,7 @@ export type PaymentStatus =
   | 'EXPIRED' 
   | 'REFUNDED';
 
-export type ReceivingMethodType = 'Wallet' | 'Mobile Money' | 'PayPal';
+export type ReceivingMethodType = 'Wallet' | 'Monad Wallet' | 'Escrow (Wallet claim)' | 'Mobile Money' | 'PayPal';
 
 export interface Recipient {
   id: string;
@@ -14,6 +14,8 @@ export interface Recipient {
   email?: string;
   phone?: string;
   username?: string;
+  twitter?: string;
+  discord?: string;
   avatarBg: string;
   avatarText: string;
   initial: string;

@@ -58,7 +58,29 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
   if (!isOpen || !recipient) return null;
 
   const numericAmount = parseFloat(amount) || 0;
-  const recipientIdentifier = recipient.email || recipient.phone || (recipient.username ? `@${recipient.username}` : recipient.id);
+
+  // Determine normalized identity and type
+  const recipientType: 'twitter' | 'discord' | 'email' | 'phone' | 'username' = 
+    recipient.twitter ? 'twitter' :
+    recipient.discord ? 'discord' :
+    recipient.email ? 'email' :
+    recipient.phone ? 'phone' :
+    IdentityService.detectIdentityType(recipient.username || recipient.name);
+
+  const rawRecipientValue = 
+    recipient.twitter ||
+    recipient.discord ||
+    recipient.email ||
+    recipient.phone ||
+    recipient.username ||
+    recipient.name;
+
+  const normalizedRecipientValue = IdentityService.normalizeIdentifier(rawRecipientValue, recipientType);
+
+  const recipientIdentifier = 
+    recipientType === 'twitter' ? `@${normalizedRecipientValue} (X)` :
+    recipientType === 'discord' ? `${normalizedRecipientValue} (Discord)` :
+    normalizedRecipientValue;
 
   const handleSendPayment = async () => {
     if (!user?.walletAddress) {
@@ -80,10 +102,10 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
     try {
       const senderAddress = user.walletAddress as `0x${string}`;
 
-      // 1. Generate real Zero-PII Cryptographic Commitment Package
+      // 1. Generate real Zero-PII Cryptographic Commitment Package using normalized social identifier
       const commitmentPkg = IdentityService.createCommitmentPackage(
         senderAddress,
-        recipientIdentifier
+        normalizedRecipientValue
       );
 
       // 2. Check USDC allowance
@@ -110,8 +132,8 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
         payment_id: commitmentPkg.paymentId,
         contract_payment_id: commitmentPkg.paymentId,
         sender_address: senderAddress,
-        recipient_identity_type: recipient.email ? 'email' : (recipient.phone ? 'phone' : 'username'),
-        recipient_identity_value: recipientIdentifier,
+        recipient_identity_type: recipientType,
+        recipient_identity_value: normalizedRecipientValue,
         recipient_identity_commitment: commitmentPkg.commitment,
         amount: numericAmount,
         token_address: MONAD_USDC_ADDRESS,
@@ -127,7 +149,7 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
       PaymentService.savePayment({
         paymentId: commitmentPkg.paymentId,
         senderAddress,
-        recipientIdentifier,
+        recipientIdentifier: normalizedRecipientValue,
         recipientName: recipient.name,
         commitment: commitmentPkg.commitment,
         salt: commitmentPkg.salt,
@@ -298,7 +320,7 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
                   <div>
                     <div className="by-rb-name">{recipient.name}</div>
                     <div className="by-rb-identifier">
-                      {recipient.email || recipient.phone || `@${recipient.username}`}
+                      {recipientIdentifier}
                     </div>
                   </div>
                 </div>
@@ -338,7 +360,7 @@ export const PaymentFlowModal: React.FC<PaymentFlowModalProps> = ({
                   <div>
                     <div className="by-rb-name">{recipient.name}</div>
                     <div className="by-rb-identifier">
-                      {recipient.email || recipient.phone || `@${recipient.username}`}
+                      {recipientIdentifier}
                     </div>
                   </div>
                 </div>

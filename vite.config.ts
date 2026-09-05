@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 function paymentsApiPlugin(): Plugin {
   return {
     name: 'beyini-payments-api',
@@ -202,5 +204,5 @@ function paymentsApiPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), paymentsApiPlugin()],
+  plugins: [react(), paymentsApiPlugin(), cloudflare()],
 });
