@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets, useCreateWallet } from '@privy-io/react-auth';
 import type { BeyiniUser } from './types';
 
@@ -18,7 +19,45 @@ export const useBeyiniAuth = () => {
   } = usePrivy();
 
   const { wallets } = useWallets();
-  const { createWallet } = useCreateWallet();
+  const { createWallet: privyCreateWallet } = useCreateWallet();
+  const [isCreatingWallet, setIsCreatingWallet] = useState(false);
+  const creationAttemptedRef = useRef(false);
+
+  // Auto-provision embedded wallet in background for authenticated users
+  useEffect(() => {
+    if (!ready || !authenticated || !privyUser) return;
+
+    const hasAnyWallet = Boolean(
+      wallets.length > 0 ||
+      privyUser.wallet ||
+      privyUser.linkedAccounts?.some((a) => a.type === 'wallet')
+    );
+
+    if (!hasAnyWallet && !creationAttemptedRef.current) {
+      creationAttemptedRef.current = true;
+      setIsCreatingWallet(true);
+      privyCreateWallet()
+        .then(() => {
+          console.log('[Beyini] Monad embedded wallet created automatically in background');
+        })
+        .catch((err) => {
+          console.warn('[Beyini] Automatic wallet provisioning error or already created:', err);
+          creationAttemptedRef.current = false;
+        })
+        .finally(() => {
+          setIsCreatingWallet(false);
+        });
+    }
+  }, [ready, authenticated, privyUser, wallets, privyCreateWallet]);
+
+  const createWallet = async () => {
+    setIsCreatingWallet(true);
+    try {
+      return await privyCreateWallet();
+    } finally {
+      setIsCreatingWallet(false);
+    }
+  };
 
   // Robust multi-source resolution for the active Monad wallet address
   const activeWallet = 
@@ -79,6 +118,7 @@ export const useBeyiniAuth = () => {
     privyUser,
     wallets,
     createWallet,
+    isCreatingWallet,
     login,
     logout,
     linkEmail,

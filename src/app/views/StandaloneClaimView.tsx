@@ -29,7 +29,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
   onExit,
   onGoToDashboard 
 }) => {
-  const { user, isAuthenticated, login } = useBeyiniAuth();
+  const { user, isAuthenticated, login, createWallet } = useBeyiniAuth();
   const { claimWithPreimage, getOnchainPayment } = useMonadEscrow();
 
   const [payment, setPayment] = useState<PaymentRecord | null>(null);
@@ -159,7 +159,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
   // Handle Real On-Chain Claim
   const handleExecuteClaim = async () => {
     if (!payment) return;
-    if (!user?.walletAddress) {
+    if (!isAuthenticated) {
       login();
       return;
     }
@@ -168,6 +168,22 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
     setClaimError(null);
 
     try {
+      let destinationAddress = user?.walletAddress as `0x${string}`;
+      if (!destinationAddress) {
+        try {
+          const newW = await createWallet();
+          if (newW && (newW as any).wallet?.address) {
+            destinationAddress = (newW as any).wallet.address as `0x${string}`;
+          }
+        } catch (wErr) {
+          console.warn('Auto wallet create error during claim:', wErr);
+        }
+      }
+
+      if (!destinationAddress) {
+        throw new Error('Monad smart wallet is still initializing. Please wait a moment and try again.');
+      }
+
       const candidateValue = recipientInput || (
         payment.recipient_identity_type === 'twitter' ? user?.twitterUsername :
         payment.recipient_identity_type === 'discord' ? user?.discordUsername :
@@ -176,7 +192,6 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
 
       const normalized = IdentityService.normalizeIdentifier(candidateValue, payment.recipient_identity_type);
       const identifierHash = IdentityService.hashIdentifier(normalized);
-      const destinationAddress = user.walletAddress as `0x${string}`;
 
       // Submit real on-chain transaction to Monad Testnet
       const result = await claimWithPreimage({

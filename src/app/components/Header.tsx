@@ -21,10 +21,11 @@ export const Header: React.FC<HeaderProps> = ({
   currentTab,
   walletAddress,
 }) => {
-  const { user, createWallet, logout } = useBeyiniAuth();
+  const { user, createWallet, isCreatingWallet: isAutoCreating, logout } = useBeyiniAuth();
   const [copied, setCopied] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const [isCreatingWallet, setIsCreatingWallet] = useState(false);
+  const [isManualCreating, setIsManualCreating] = useState(false);
+  const isCreatingWallet = isAutoCreating || isManualCreating;
 
   const getTabTitle = () => {
     switch (currentTab) {
@@ -51,13 +52,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleCreateWallet = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsCreatingWallet(true);
+    setIsManualCreating(true);
     try {
       await createWallet();
     } catch (err) {
       console.error('Failed to create wallet:', err);
     } finally {
-      setIsCreatingWallet(false);
+      setIsManualCreating(false);
     }
   };
 
