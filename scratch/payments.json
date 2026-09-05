@@ -1,0 +1,20 @@
+[
+  {
+    "payment_id": "0xa8782f0b5196ccc471a30032cb4623f28f0b779118b250ec9b6245b5b7dc33f6",
+    "contract_payment_id": "0xa8782f0b5196ccc471a30032cb4623f28f0b779118b250ec9b6245b5b7dc33f6",
+    "sender_address": "0x7710E2BFA2eecE7aae699BF3cc83f58dfc4C319F",
+    "recipient_identity_type": "email",
+    "recipient_identity_value": "angeloulak2004@gmail.com",
+    "recipient_identity_commitment": "0x7a417c32e7af341f524ce97ce467abb2718e0b73ad94979f67f69c27a244f671",
+    "amount": 10,
+    "token_address": "0x534b2f3A21130d7a60830c2Df862319e593943A3",
+    "chain_id": 10143,
+    "deposit_tx_hash": "0x2380bf40a36b715937caa3d23fdc3494780d9d84f7842214d43b5203137f3454",
+    "salt": "0x4b5cd9a1638a4e25b7bfc9573e41808a7a7e03168df89153fe1f1dc856b70937",
+    "status": "COMPLETED",
+    "created_at": 1788626544,
+    "claim_tx_hash": "0x5fa2a1b0d0f412c0e64a75ebfae61512a4b0a2865db6c4ca36a7e3d891d41bc2",
+    "claim_destination": "0x762a8A4C73707Fc391f58F098d0667d0fc98566e",
+    "claimed_at": 1788630227
+  }
+]

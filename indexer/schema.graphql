@@ -1,0 +1,33 @@
+type PaymentEntity @entity {
+  id: ID!
+  paymentId: String!
+  sender: String!
+  token: String!
+  amount: BigInt!
+  commitment: String!
+  expiry: BigInt!
+  status: String!
+  destination: String
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type ClaimEntity @entity {
+  id: ID!
+  paymentId: String!
+  destination: String!
+  amount: BigInt!
+  token: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type RefundEntity @entity {
+  id: ID!
+  paymentId: String!
+  sender: String!
+  amount: BigInt!
+  token: String!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}

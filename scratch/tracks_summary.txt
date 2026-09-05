@@ -1,0 +1,1088 @@
+
+==================== Consumer Products & Payments ====================
+ion that blocked real community formation.
+
+
+
+### Consumer Products & Payments
+
+
+
+#### Income Share Agreements as a Consumer Product
+
+
+
+Fund a friend's course, career move, or creative project in exchange for a programmatic share of future earnings, settled automatically onstream.
+
+
+
+- [$ALEX "Human IPO"](https://www.theblock.co/post/61699/this-crypto-entrepreneur-just-sold-20000-worth-of-personal-tokens-on-ethereum): $20K of personal tokens for 15% of income over 3 years, capped at $100K, quarterly DAI dividends. The trust gap in income reporting is what onstream settlement fixes.
+
+- [Superfluid Distributions](https://docs.superfluid.org/docs/concepts/superfluid): One-to-many pools with continuous streaming to members.
+
+- [Sablier (stream-as-NFT)](https://sablier.com): Streams are transferable ERC-721s usable as collateral.
+
+
+
+#### Programmable Gifts That Unlock on Conditions
+
+
+
+"Here's $500 when you graduate", "here's your share when the company exits": financial commitments that execute automatically without anyone having to remember or chase.
+
+
+
+- [Chainlink Programmable Money](https://chain.link/article/programmable-money-mechanics): Escrow and release handled by the contract, executing only when predefined criteria are met.
+
+- [Chainlink Automation tutorial](https://chain.link/tutorials/trigger-smart-contract-execution): Trigger smart contract execution. Automation not confirmed live on Monad; fallback is a self-run keeper bot (see Ride or Die).
+
+- [CCIP + CCTP on Monad](https://docs.monad.xyz/tooling-and-infra/cross-c
+----------------------------------------
+
+==================== Trust, Identity & AI Infrastructure ====================
+ — the closest live analogue to this idea.
+
+
+
+### Trust, Identity & AI Infrastructure
+
+
+
+#### Expertise Licensing Marketplace
+
+
+
+Domain experts license their decision-making patterns to train specialised models, compensated per training run, not per data upload.
+
+
+
+- [Bittensor Subnet 52 (Dojo)](https://www.aicoin.com/en/article/447570): The biggest live experiment in paying for AI contributions, with Dojo specifically incentivizing data annotation.
+
+- [Bittensor critical analysis](https://arxiv.org/html/2507.02951v1): Academic analysis of the incentive design.
+
+- [Reward-distribution skew](https://sandeepchinchali.medium.com/decentralized-ai-and-bittensor-an-academics-view-b0ad811d2728): On Bittensor, whale validators earn ~$40K/day while the best-performing miner ranks 66th at ~$940/day. Token-incentive networks tend to pay capital, not contributors.
+
+
+
+#### Data Labelling Networks for Physical AI
+
+
+
+Contributors earn stablecoin rewards for annotating robotics and sensor data, with onchain micropayments making global participation practical at scale.
+
+
+
+- [Bittensor subnets](https://bittensor.ai/subnets): The direct precedent: distributed annotation where miners tag data and validators score accuracy using semantic embeddings. Steal the validator-scoring design — quality control is the whole game in labeling.
+
+
+
+#### Content Passports
+
+
+
+Every AI-generated asset carries a cryptographic certificate of origin and a tamper-evident audit trail that survives platform migration.
+
+
+
+- [C2PA / Content Credentials spec](https://spe
+----------------------------------------
+
+==================== Alchemy ====================
+etuals engine.
+
+- [Smart Wallets SDK](https://www.alchemy.com/docs/wallets/quickstart): Wallet APIs with bundler, gas sponsorship, and ERC-20 gas payments on Monad mainnet.
+
+- [Alchemy CLI](https://www.alchemy.com/docs/alchemy-cli): One binary for RPC, wallets, and webhooks. Agent-ready with --json.
+
+- [Blend SDKs](https://docs.blend.money/build/sdk/overview): Frontend and server TypeScript SDKs for deposits, withdrawals, and yield accounts.
+
+- [Zerion CLI](https://developers.zerion.io/build-with-ai/zerion-cli): Analyze wallets, sign, swap, and send on Monad from the command line. JSON output, agent-ready.
+
+
+
+## MCP servers and skills
+
+
+
+Connect an agent to Monad and the ecosystem. Model Context Protocol servers and agent skills.
+
+
+
+### Alchemy
+
+
+
+- [Alchemy MCP Server](https://www.alchemy.com/docs/alchemy-mcp-server): Hosted MCP server. Live chain data as tool calls, no API key required.
+
+- [Alchemy Agent Skills](https://www.alchemy.com/docs/alchemy-agent-skills): Teach a coding agent every Alchemy API with one install.
+
+- [Alchemy agent auth and payment](https://www.alchemy.com/docs/alchemy-for-agents): Wallet-based auth for agents. Pay for compute in USDC via x402.
+
+
+
+### Envio
+
+
+
+- [Envio indexer skills](https://docs.envio.dev/blog/ai-agents-acting-onchain-indexer): HyperIndex ships 14 agent skills. Prompt-to-production indexers on Monad.
+
+
+
+### Uniswap
+
+
+
+- [Uniswap AI Skills](https://developers.uniswap.org/docs/uniswap-ai/skills): Agent skills for trading and liquidity on Uniswap.
+
+
+
+### Morpho
+
+
+
+- [Morpho Agents](htt
+----------------------------------------
+.
+
+- [Alchemy agent auth and payment](https://www.alchemy.com/docs/alchemy-for-agents): Wallet-based auth for agents. Pay for compute in USDC via x402.
+
+
+
+### Envio
+
+
+
+- [Envio indexer skills](https://docs.envio.dev/blog/ai-agents-acting-onchain-indexer): HyperIndex ships 14 agent skills. Prompt-to-production indexers on Monad.
+
+
+
+### Uniswap
+
+
+
+- [Uniswap AI Skills](https://developers.uniswap.org/docs/uniswap-ai/skills): Agent skills for trading and liquidity on Uniswap.
+
+
+
+### Morpho
+
+
+
+- [Morpho Agents](https://docs.morpho.org/developers/agents/get-started/): Agent toolkit for automated onchain strategies.
+
+
+
+### Zerion
+
+
+
+- [Zerion Agent Skills](https://developers.zerion.io/build-with-ai/zerion-cli#skills): Six skills for wallet analysis, trading, and signing on Monad. Installs into any coding agent.
+
+
+
+## Idea-specific resources
+
+
+
+Curated links for each project idea. Read them beside the track you build for.
+
+
+
+### Onchain Finance & Trading
+
+
+
+#### SLA Insurance & Performance Bonds
+
+
+
+Underwriting compute delivery with onchain slashing.
+
+
+
+- [Chainlink: What Is Slashing?](https://chain.link/article/slashing): Node operators back onchain SLAs with staked LINK slashed for missed performance obligations — the underwriting primitive, in production.
+
+- [Aethir staking docs](https://docs.aethir.com/aethir-network/the-container/staking-and-rewards): Node operators stake ATH before contributing resources; deviating from quality standards risks slashing — DePIN-native SLA enforcement.
+
+- [Chainscore: On-Chain SLAs](https://www.
+----------------------------------------
+.com/docs/aave-v3/concepts/liquidity-pool)
+
+
+
+### Alchemy
+
+
+
+- [Monad API quickstart](https://www.alchemy.com/docs/reference/monad-api-quickstart)
+
+- [Monad API FAQ](https://www.alchemy.com/docs/reference/monad-api-faq)
+
+- [Add Alchemy RPC to any project](https://www.alchemy.com/docs/add-alchemy-rpc-to-any-project)
+
+- [Build with AI overview](https://www.alchemy.com/docs/build-with-ai)
+
+- [Wallets: send transactions with the SDK](https://www.alchemy.com/docs/wallets/transactions/using-sdk)
+
+- [Wallets: sponsor gas](https://www.alchemy.com/docs/wallets/transactions/sponsor-gas/overview)
+
+- [Wallets: EIP-7702 transactions](https://www.alchemy.com/docs/wallets/transactions/using-eip-7702)
+
+
+
+### Blend
+
+
+
+- [Start building](https://docs.blend.money/build/overview)
+
+- [Your first deposit](https://docs.blend.money/build/first-deposit)
+
+- [Architecture](https://docs.blend.money/architecture/overview)
+
+- [API reference](https://docs.blend.money/build/api/overview)
+
+- [Best practices](https://docs.blend.money/build/best-practices)
+
+
+
+### Curvance
+
+
+
+- [Protocol architecture](https://docs.curvance.com/app/protocol-overview/protocol-architecture)
+
+- [Application-specific sequencing](https://docs.curvance.com/app/protocol-overview/application-specific-sequencing)
+
+- [Plugin system](https://docs.curvance.com/app/protocol-overview/plugin-system)
+
+
+
+### Envio
+
+
+
+- [HyperIndex overview](https://docs.envio.dev/docs/HyperIndex/overview)
+
+- [HyperIndex quickstart](https://docs.envio.dev/docs/HyperIndex/quickstart)
+
+- [Quickstart with AI](https
+----------------------------------------
+
+==================== Envio ====================
+ agents. Pay for compute in USDC via x402.
+
+
+
+### Envio
+
+
+
+- [Envio indexer skills](https://docs.envio.dev/blog/ai-agents-acting-onchain-indexer): HyperIndex ships 14 agent skills. Prompt-to-production indexers on Monad.
+
+
+
+### Uniswap
+
+
+
+- [Uniswap AI Skills](https://developers.uniswap.org/docs/uniswap-ai/skills): Agent skills for trading and liquidity on Uniswap.
+
+
+
+### Morpho
+
+
+
+- [Morpho Agents](https://docs.morpho.org/developers/agents/get-started/): Agent toolkit for automated onchain strategies.
+
+
+
+### Zerion
+
+
+
+- [Zerion Agent Skills](https://developers.zerion.io/build-with-ai/zerion-cli#skills): Six skills for wallet analysis, trading, and signing on Monad. Installs into any coding agent.
+
+
+
+## Idea-specific resources
+
+
+
+Curated links for each project idea. Read them beside the track you build for.
+
+
+
+### Onchain Finance & Trading
+
+
+
+#### SLA Insurance & Performance Bonds
+
+
+
+Underwriting compute delivery with onchain slashing.
+
+
+
+- [Chainlink: What Is Slashing?](https://chain.link/article/slashing): Node operators back onchain SLAs with staked LINK slashed for missed performance obligations — the underwriting primitive, in production.
+
+- [Aethir staking docs](https://docs.aethir.com/aethir-network/the-container/staking-and-rewards): Node operators stake ATH before contributing resources; deviating from quality standards risks slashing — DePIN-native SLA enforcement.
+
+- [Chainscore: On-Chain SLAs](https://www.chainscorelabs.com/en/blog/depin-building-physical-infra-on-chain/network-performance-and-qos/the-future-of-n
+----------------------------------------
+indexing of Kuru orderbook events across Goldsky, Envio, Ponder, QuickNode, TheGraph — the plumbing for no-pending-state UIs.
+
+- [Monad for Developers](https://docs.monad.xyz/introduction/monad-for-developers): 400ms blocks, 800ms finality, full Ethereum RPC compatibility. The performance envelope your interface can assume. (Monad Foundation)
+
+
+
+#### Embedded Trading in Non-Trading Apps
+
+
+
+Embedded trading inside wallets, games, and non-trading apps.
+
+
+
+- [Monad Embedded Wallets docs](https://docs.monad.xyz/tooling-and-infra/wallet-infra/embedded-wallets): Directory of Privy, Para, Sequence, and Portal integrations for one-click auth, in-app swaps, and smart accounts on Monad. (Monad Foundation)
+
+- [Monad blog: 2048 — Building High Performance Games](https://blog.monad.xyz/blog/build-2048): Walkthrough of Privy embedded wallets signing rapid transactions without popup fatigue — the pattern for embedding trades in any app. (Monad Foundation)
+
+- [monad-developers templates (Privy + 0x Swap API)](https://github.com/monad-developers): Official starter repos combining embedded wallets with the 0x swap API — trading inside a non-trading app as a template.
+
+- [0x Swap API](https://0x.org/docs): Embed swaps sourced from 150+ liquidity venues directly in your app, live on Monad mainnet.
+
+
+
+#### Next-gen Launchpads for New Asset Classes
+
+
+
+A launchpad built around a newly liquid asset class or user behavior rather than another memecoin bonding curve. Launchpads aggregate communities of communities; share is won by unlocking what the i
+----------------------------------------
+ other EVM chains) doesn't cover your target.
+
+- [Envio HyperIndex on Monad](https://docs.envio.dev/docs/HyperIndex/monad): Gold-tier Monad indexing (chain ID 143) with HyperSync backfills up to 2000x faster than RPC. The factory-contract pattern auto-registers events from every child token a launchpad deploys - and Nad.fun already runs on it. This is the launch-feed backend.
+
+- [Uniswap v4 hooks template](https://github.com/uniswapfoundation/v4-template): Foundry template with worked beforeSwap/afterSwap hooks - the primitive behind Zora's decaying sniper tax and Doppler's dynamic auctions. Monad check: verify a v4 PoolManager deployment before building on hooks; if absent, curve logic lives in your own pool contract.
+
+- [Envio Uniswap v4 multichain indexer](https://github.com/enviodev/uniswap-v4-indexer): Open-source indexer powering v4.xyz: pools, swaps, positions, and hook events behind a GraphQL API, runnable locally with pnpm envio dev. The fastest starting point for the discovery feed, token pages, and graduation tracking.
+
+
+
+#### New Order Types via Better UI
+
+
+
+New order types and execution strategies (TWAP, grid, limit variants) surfaced through better UI.
+
+
+
+- [Paradigm: TWAMM](https://www.paradigm.xyz/2021/07/twamm): Foundational paper (Dave White, Dan Robinson, Hayden Adams) on onchain TWAP execution by splitting long-term orders into infinitely small pieces. Paradigm also led Kuru's round.
+
+- [Kuru SDK (npm)](https://www.npmjs.com/package/@kuru-labs/kuru-sdk): Programmatic order management, margin accounts, and
+----------------------------------------
+e.com/app/protocol-overview/plugin-system)
+
+
+
+### Envio
+
+
+
+- [HyperIndex overview](https://docs.envio.dev/docs/HyperIndex/overview)
+
+- [HyperIndex quickstart](https://docs.envio.dev/docs/HyperIndex/quickstart)
+
+- [Quickstart with AI](https://docs.envio.dev/docs/HyperIndex/quickstart-with-ai)
+
+- [Index Monad data with Envio](https://docs.envio.dev/docs/HyperIndex/monad-testnet)
+
+- [HyperSync: raw data engine](https://docs.envio.dev/docs/HyperSync/overview)
+
+- [HyperRPC: fast read-only RPC](https://docs.envio.dev/docs/HyperRPC/overview-hyperrpc)
+
+- [Transfer notification bot on Monad](https://docs.monad.xyz/guides/indexers/tg-bot-using-envio)
+
+
+
+### Euler
+
+
+
+- [Interacting with EVK vaults](https://docs.euler.finance/developers/evk/interacting-with-vaults)
+
+- [EulerSwap](https://docs.euler.finance/developers/euler-swap)
+
+
+
+### Morpho
+
+
+
+- [Protocol concepts](https://docs.morpho.org/learn/)
+
+
+
+### Pendle
+
+
+
+- [Pendle Academy introduction](https://docs.pendle.finance/pendle-academy/Introduction)
+
+- [Pendle v2 introduction](https://docs.pendle.finance/pendle-v2/Introduction)
+
+- [Video walkthrough series](https://www.youtube.com/watch?v=oDZ3JAkcFeM&list=PLTbb0FG5e3tXcE6d53OUHhsHvzLDaEu1v)
+
+
+
+### Perpl
+
+
+
+- [For developers](https://docs.perpl.xyz/resources/for-developers)
+
+- [Quickstart](https://docs.perpl.xyz/resources/for-developers/quickstart)
+
+
+
+### QuickNode
+
+
+
+- [Monad quickstart](https://www.quicknode.com/docs/monad/quickstart)
+
+- [Monad API overview](https://www.quicknode.com/docs/monad/api-overview)
+
+- [Streams: real-time a
+----------------------------------------
+
+==================== x402 ====================
+chain data at Monad speed. (Monad Foundation)
+
+- [x402](https://docs.monad.xyz/guides/x402#what-is-x402): HTTP-native payments for agents and APIs. (Monad Foundation)
+
+- [ERC-8004](https://docs.monad.xyz/guides/erc-8004): Trustless agent identity and reputation. (Monad Foundation)
+
+- [MERA](https://docs.monad.xyz/guides/mera): Monad execution and runtime architecture guide. (Monad Foundation)
+
+
+
+## Starter templates
+
+
+
+Clone a starter and ship. Farcaster miniapps, Next.js PWAs, and React Native apps.
+
+
+
+### Farcaster miniapp
+
+
+
+- [Overview](https://docs.monad.xyz/templates/farcaster-miniapp) (Monad Foundation)
+
+- [Getting started](https://docs.monad.xyz/templates/farcaster-miniapp/getting-started) (Monad Foundation)
+
+- [Generating custom OG images](https://docs.monad.xyz/templates/farcaster-miniapp/generating-custom-og-images) (Monad Foundation)
+
+- [Haptics](https://docs.monad.xyz/templates/farcaster-miniapp/haptics) (Monad Foundation)
+
+- [Sending notifications](https://docs.monad.xyz/templates/farcaster-miniapp/sending-notifications) (Monad Foundation)
+
+- [Publishing the miniapp](https://docs.monad.xyz/templates/farcaster-miniapp/publishing-miniapp) (Monad Foundation)
+
+
+
+### Next.js · PWA
+
+
+
+- [Privy embedded wallet](https://docs.monad.xyz/templates/next-serwist-privy-embedded-wallet) (Monad Foundation)
+
+- [Privy smart wallet](https://docs.monad.xyz/templates/next-serwist-privy-smart-wallet) (Monad Foundation)
+
+- [0x + Privy embedded wallet](https://docs.monad.xyz/templates/next-serwist-0x-privy-embedded-wallet) (Monad Foun
+----------------------------------------
+ased auth for agents. Pay for compute in USDC via x402.
+
+
+
+### Envio
+
+
+
+- [Envio indexer skills](https://docs.envio.dev/blog/ai-agents-acting-onchain-indexer): HyperIndex ships 14 agent skills. Prompt-to-production indexers on Monad.
+
+
+
+### Uniswap
+
+
+
+- [Uniswap AI Skills](https://developers.uniswap.org/docs/uniswap-ai/skills): Agent skills for trading and liquidity on Uniswap.
+
+
+
+### Morpho
+
+
+
+- [Morpho Agents](https://docs.morpho.org/developers/agents/get-started/): Agent toolkit for automated onchain strategies.
+
+
+
+### Zerion
+
+
+
+- [Zerion Agent Skills](https://developers.zerion.io/build-with-ai/zerion-cli#skills): Six skills for wallet analysis, trading, and signing on Monad. Installs into any coding agent.
+
+
+
+## Idea-specific resources
+
+
+
+Curated links for each project idea. Read them beside the track you build for.
+
+
+
+### Onchain Finance & Trading
+
+
+
+#### SLA Insurance & Performance Bonds
+
+
+
+Underwriting compute delivery with onchain slashing.
+
+
+
+- [Chainlink: What Is Slashing?](https://chain.link/article/slashing): Node operators back onchain SLAs with staked LINK slashed for missed performance obligations — the underwriting primitive, in production.
+
+- [Aethir staking docs](https://docs.aethir.com/aethir-network/the-container/staking-and-rewards): Node operators stake ATH before contributing resources; deviating from quality standards risks slashing — DePIN-native SLA enforcement.
+
+- [Chainscore: On-Chain SLAs](https://www.chainscorelabs.com/en/blog/depin-building-physical-infra-on-chain/network-performance-and-qos/th
+----------------------------------------
+
+==================== ERC-8004 ====================
+ments for agents and APIs. (Monad Foundation)
+
+- [ERC-8004](https://docs.monad.xyz/guides/erc-8004): Trustless agent identity and reputation. (Monad Foundation)
+
+- [MERA](https://docs.monad.xyz/guides/mera): Monad execution and runtime architecture guide. (Monad Foundation)
+
+
+
+## Starter templates
+
+
+
+Clone a starter and ship. Farcaster miniapps, Next.js PWAs, and React Native apps.
+
+
+
+### Farcaster miniapp
+
+
+
+- [Overview](https://docs.monad.xyz/templates/farcaster-miniapp) (Monad Foundation)
+
+- [Getting started](https://docs.monad.xyz/templates/farcaster-miniapp/getting-started) (Monad Foundation)
+
+- [Generating custom OG images](https://docs.monad.xyz/templates/farcaster-miniapp/generating-custom-og-images) (Monad Foundation)
+
+- [Haptics](https://docs.monad.xyz/templates/farcaster-miniapp/haptics) (Monad Foundation)
+
+- [Sending notifications](https://docs.monad.xyz/templates/farcaster-miniapp/sending-notifications) (Monad Foundation)
+
+- [Publishing the miniapp](https://docs.monad.xyz/templates/farcaster-miniapp/publishing-miniapp) (Monad Foundation)
+
+
+
+### Next.js · PWA
+
+
+
+- [Privy embedded wallet](https://docs.monad.xyz/templates/next-serwist-privy-embedded-wallet) (Monad Foundation)
+
+- [Privy smart wallet](https://docs.monad.xyz/templates/next-serwist-privy-smart-wallet) (Monad Foundation)
+
+- [0x + Privy embedded wallet](https://docs.monad.xyz/templates/next-serwist-0x-privy-embedded-wallet) (Monad Foundation)
+
+- [thirdweb](https://docs.monad.xyz/templates/next-serwist-thirdweb) (Monad Foundation)
+
+
+
+### React Native
+
+
+
+-
+----------------------------------------
+
+==================== EIP-7702 ====================
+ under parallel execution. (Monad Foundation)
+
+- [EIP-7702](https://docs.monad.xyz/developer-essentials/eip-7702): Smart accounts from EOAs. (Monad Foundation)
+
+- [Staking overview](https://docs.monad.xyz/reference/staking/overview): Validator staking reference. (Monad Foundation)
+
+- [Tooling and infra](https://docs.monad.xyz/tooling-and-infra): RPCs, indexers, oracles, and more. (Monad Foundation)
+
+
+
+### Guides
+
+
+
+- [Deploy a smart contract](https://docs.monad.xyz/guides/deploy-smart-contract/index): Foundry, Hardhat, Remix. Ship in minutes. (Monad Foundation)
+
+- [Verify a smart contract](https://docs.monad.xyz/guides/verify-smart-contract/index): Source verification on explorers. (Monad Foundation)
+
+- [Indexers](https://docs.monad.xyz/guides/indexers/index): Query chain data at Monad speed. (Monad Foundation)
+
+- [x402](https://docs.monad.xyz/guides/x402#what-is-x402): HTTP-native payments for agents and APIs. (Monad Foundation)
+
+- [ERC-8004](https://docs.monad.xyz/guides/erc-8004): Trustless agent identity and reputation. (Monad Foundation)
+
+- [MERA](https://docs.monad.xyz/guides/mera): Monad execution and runtime architecture guide. (Monad Foundation)
+
+
+
+## Starter templates
+
+
+
+Clone a starter and ship. Farcaster miniapps, Next.js PWAs, and React Native apps.
+
+
+
+### Farcaster miniapp
+
+
+
+- [Overview](https://docs.monad.xyz/templates/farcaster-miniapp) (Monad Foundation)
+
+- [Getting started](https://docs.monad.xyz/templates/farcaster-miniapp/getting-started) (Monad Foundation)
+
+- [Generating custom OG images](https://docs.m
+----------------------------------------
+s/transactions/sponsor-gas/overview)
+
+- [Wallets: EIP-7702 transactions](https://www.alchemy.com/docs/wallets/transactions/using-eip-7702)
+
+
+
+### Blend
+
+
+
+- [Start building](https://docs.blend.money/build/overview)
+
+- [Your first deposit](https://docs.blend.money/build/first-deposit)
+
+- [Architecture](https://docs.blend.money/architecture/overview)
+
+- [API reference](https://docs.blend.money/build/api/overview)
+
+- [Best practices](https://docs.blend.money/build/best-practices)
+
+
+
+### Curvance
+
+
+
+- [Protocol architecture](https://docs.curvance.com/app/protocol-overview/protocol-architecture)
+
+- [Application-specific sequencing](https://docs.curvance.com/app/protocol-overview/application-specific-sequencing)
+
+- [Plugin system](https://docs.curvance.com/app/protocol-overview/plugin-system)
+
+
+
+### Envio
+
+
+
+- [HyperIndex overview](https://docs.envio.dev/docs/HyperIndex/overview)
+
+- [HyperIndex quickstart](https://docs.envio.dev/docs/HyperIndex/quickstart)
+
+- [Quickstart with AI](https://docs.envio.dev/docs/HyperIndex/quickstart-with-ai)
+
+- [Index Monad data with Envio](https://docs.envio.dev/docs/HyperIndex/monad-testnet)
+
+- [HyperSync: raw data engine](https://docs.envio.dev/docs/HyperSync/overview)
+
+- [HyperRPC: fast read-only RPC](https://docs.envio.dev/docs/HyperRPC/overview-hyperrpc)
+
+- [Transfer notification bot on Monad](https://docs.monad.xyz/guides/indexers/tg-bot-using-envio)
+
+
+
+### Euler
+
+
+
+- [Interacting with EVK vaults](https://docs.euler.finance/developers/evk/interacting-with-vaults)
+
+- [EulerSwap](https://docs.eul
+----------------------------------------
+
+==================== Circle ====================
+chain conditional release. (Monad Foundation)
+
+- [Circle Contracts](https://www.circle.com/blog/now-available-usdc-cctp-wallets-and-contracts-on-monad): Security-audited smart contract templates for the escrow boilerplate.
+
+- [Sablier Lockup](https://sablier.com): Fixed-duration streams with custom curves. A gift is a lockup with an oracle-gated cliff.
+
+- [Stellar conditional payments tutorial](https://dev.to/ravixalgorithm/tutorial-7-stellar-smart-contracts-conditional-payments-1le4): Lightweight alternative walkthrough of conditional payments.
+
+
+
+#### Accountability Pools (Failures Fund Successes)
+
+
+
+Groups collectively commit to a shared goal: those who fail fund the rewards of those who succeed.
+
+
+
+- [CommitPool V2 pooled-stakes design](https://hackmd.io/@spengrah/SkG1F0uU_): Design doc for pooled commitment stakes.
+
+- [PoolTogether contracts](https://docs.pooltogether.com): Pool accounting and prize distribution to repurpose.
+
+- [aPriori](https://lp.new): Monad-native yield source for the pool.
+
+- [Kintsu](https://kintsu.xyz): Monad liquid staking. Another yield source, alongside Morpho and Curve on Monad.
+
+- [Incentive-design pitfalls](https://theoutline.com/post/8392/weight-loss-wagering-healthywage-dietbet): Web2 postmortem on weight-loss wagering (HealthyWage, DietBet).
+
+
+
+#### Micro-Insurance by the Minute
+
+
+
+Cover your laptop for the next three hours, insure a specific journey, pay only for the moments of actual exposure.
+
+
+
+- [Nexus Mutual](https://nexusmutual.io): $7B+ cover underwritten, $10M+ claims paid. Stak
+----------------------------------------
+Splits): Contracts, SDK, and subgraph source.
+
+- [Circle Wallets + Gas Sponsorship on Monad](https://www.circle.com/blog/now-available-usdc-cctp-wallets-and-contracts-on-monad): Embedded in-app wallets and sponsored network fees. The key to payments that feel like messages.
+
+- [Superfluid](https://docs.superfluid.org): Tips and gifts as open streams.
+
+- [Splits protocol deep-dive](https://www.solidnoob.com/blog/0xSplits): Community walkthrough of the 0xSplits architecture.
+
+
+
+#### Salary Streaming at the Individual Level
+
+
+
+Get paid every second rather than bi-weekly, with idle balances earning yield in the background until you spend them.
+
+
+
+- [Superfluid](https://docs.superfluid.org/docs/concepts/superfluid): Set a flow rate, balances update every second, all flows netted in real time, no locked capital.
+
+- [Sablier Flow](https://sablier.com): Open-ended recurring payments on 24+ EVM chains plus Solana.
+
+- [Payment streaming glossary](https://www.spark.money/glossary/payment-streaming): Streaming architecture comparison.
+
+- [Token streaming models](https://blog.sablier.com/overview-token-streaming-models): Sablier overview, including Superfluid’s liquidator network monitoring sender solvency.
+
+- [Idle-balance yield on Monad](https://lp.new): aPriori sMON, plus Kintsu and Curvance.
+
+- [Earned Wage Access](https://en.wikipedia.org/wiki/Earned_wage_access): The fiat analogue, as a design reference.
+
+
+
+### Social, Attention & Culture
+
+
+
+#### Algorithm Marketplace
+
+
+
+Communities publish, sell, and compete on feed ranking strate
+----------------------------------------
+ession keys and sponsored transactions. Pair with Circle Wallets' gas sponsorship on Monad for the true one-tap flow.
+
+
+
+## Ecosystem protocol resources
+
+
+
+Concepts, architecture, and integration guides from protocols across the ecosystem.
+
+
+
+- [EIPs For Designers](https://www.eipsfordesigners.com/): Find how each Ethereum and Monad standard affects what users see, feel, and do. Search by ID, browse by problem, or follow the user journey.
+
+
+
+### Aave
+
+
+
+- [Liquidity pool concepts](https://aave.com/docs/aave-v3/concepts/liquidity-pool)
+
+
+
+### Alchemy
+
+
+
+- [Monad API quickstart](https://www.alchemy.com/docs/reference/monad-api-quickstart)
+
+- [Monad API FAQ](https://www.alchemy.com/docs/reference/monad-api-faq)
+
+- [Add Alchemy RPC to any project](https://www.alchemy.com/docs/add-alchemy-rpc-to-any-project)
+
+- [Build with AI overview](https://www.alchemy.com/docs/build-with-ai)
+
+- [Wallets: send transactions with the SDK](https://www.alchemy.com/docs/wallets/transactions/using-sdk)
+
+- [Wallets: sponsor gas](https://www.alchemy.com/docs/wallets/transactions/sponsor-gas/overview)
+
+- [Wallets: EIP-7702 transactions](https://www.alchemy.com/docs/wallets/transactions/using-eip-7702)
+
+
+
+### Blend
+
+
+
+- [Start building](https://docs.blend.money/build/overview)
+
+- [Your first deposit](https://docs.blend.money/build/first-deposit)
+
+- [Architecture](https://docs.blend.money/architecture/overview)
+
+- [API reference](https://docs.blend.money/build/api/overview)
+
+- [Best practices](https://docs.blend.money/build/best-practices)
+
+
+
+### Curvanc
+----------------------------------------
+
+==================== USDC ====================
+ Wallet-based auth for agents. Pay for compute in USDC via x402.
+
+
+
+### Envio
+
+
+
+- [Envio indexer skills](https://docs.envio.dev/blog/ai-agents-acting-onchain-indexer): HyperIndex ships 14 agent skills. Prompt-to-production indexers on Monad.
+
+
+
+### Uniswap
+
+
+
+- [Uniswap AI Skills](https://developers.uniswap.org/docs/uniswap-ai/skills): Agent skills for trading and liquidity on Uniswap.
+
+
+
+### Morpho
+
+
+
+- [Morpho Agents](https://docs.morpho.org/developers/agents/get-started/): Agent toolkit for automated onchain strategies.
+
+
+
+### Zerion
+
+
+
+- [Zerion Agent Skills](https://developers.zerion.io/build-with-ai/zerion-cli#skills): Six skills for wallet analysis, trading, and signing on Monad. Installs into any coding agent.
+
+
+
+## Idea-specific resources
+
+
+
+Curated links for each project idea. Read them beside the track you build for.
+
+
+
+### Onchain Finance & Trading
+
+
+
+#### SLA Insurance & Performance Bonds
+
+
+
+Underwriting compute delivery with onchain slashing.
+
+
+
+- [Chainlink: What Is Slashing?](https://chain.link/article/slashing): Node operators back onchain SLAs with staked LINK slashed for missed performance obligations — the underwriting primitive, in production.
+
+- [Aethir staking docs](https://docs.aethir.com/aethir-network/the-container/staking-and-rewards): Node operators stake ATH before contributing resources; deviating from quality standards risks slashing — DePIN-native SLA enforcement.
+
+- [Chainscore: On-Chain SLAs](https://www.chainscorelabs.com/en/blog/depin-building-physical-infra-on-chain/network-performance-a
+----------------------------------------
+lt (a third of active loans), 80% loss in the M11 USDC pool; the borrower had misrepresented FTX exposure. Maple survived by pivoting to secured, overcollateralized positions.
+
+- [Curvance](https://curvance.com): Monad-native lending layer, with native USDC as the loan asset and aPriori/Kintsu sMON yield as a natively verifiable income stream to underwrite first.
+
+
+
+#### Execution-Aware Trading Interfaces
+
+
+
+Trading interfaces with real-time fills, live order books, and no pending states.
+
+
+
+- [Kuru Docs](https://docs.kuru.io/): Fully onchain CLOB DEX and smart aggregator on Monad. The canonical reference for a live-order-book interface on the chain.
+
+- [0x: Order books on Monad](https://0x.org/post/0x-101-order-books-on-monad): Why order books become viable on Monad and how 0x aggregates CLOB liquidity alongside AMMs from day one.
+
+- [kuru-terminal (GitHub)](https://github.com/monad-developers/kuru-terminal): Reference implementation for real-time indexing of Kuru orderbook events across Goldsky, Envio, Ponder, QuickNode, TheGraph — the plumbing for no-pending-state UIs.
+
+- [Monad for Developers](https://docs.monad.xyz/introduction/monad-for-developers): 400ms blocks, 800ms finality, full Ethereum RPC compatibility. The performance envelope your interface can assume. (Monad Foundation)
+
+
+
+#### Embedded Trading in Non-Trading Apps
+
+
+
+Embedded trading inside wallets, games, and non-trading apps.
+
+
+
+- [Monad Embedded Wallets docs](https://docs.monad.xyz/tooling-and-infra/wallet-infra/embedded-wallets): Directory of Privy, Para
+----------------------------------------
+timistic-oracle/): Request, bonded proposal ($750 USDC), 2h challenge window, DVM token vote if disputed. The default resolution stack for novel markets.
+
+- [Multi-agent AI oracle research](https://arxiv.org/pdf/2605.30802): Only ~1.5% of UMA proposals are disputed: cheap automation in the common case, expensive human arbitration in the rare case. Relevant to resolving AI-model or virality markets cheaply.
+
+- [The UMA whale dispute](https://www.webopedia.com/crypto/learn/polymarkets-uma-oracle-controversy/): A single holder with ~25% of voting power swung a resolution against real-world facts. The thinner the market, the cheaper it is to corrupt its oracle.
+
+- [Prediction-market platform survey](https://arxiv.org/pdf/2601.01706): Pricing and resolution mechanisms compared across Polymarket, Kalshi, Augur, Limitless, Truemarkets.
+
+- [Monad prediction-market landscape](https://www.gate.com/learn/articles/monad-ecosystem-guide-native-consumer-d-app-prediction-market/6245): The live Monad prediction-market venues compared. Study these to avoid rebuilding what exists: AI model performance and emerging-market indicators have no Monad venue yet.
+
+
+
+#### Mobile-First Trading for a Specific Segment
+
+
+
+Mobile-first, simplified trading experiences targeted at a specific user segment.
+
+
+
+- [React Native + Privy embedded wallet template](https://github.com/monad-developers/react-native-privy-embedded-wallet-template): Official Monad starter for mobile apps with embedded wallet actions built in.
+
+- [Kizzy (via blocmates)](https://www.bloc
+----------------------------------------
+tracts](https://www.circle.com/blog/now-available-usdc-cctp-wallets-and-contracts-on-monad): Security-audited smart contract templates for the escrow boilerplate.
+
+- [Sablier Lockup](https://sablier.com): Fixed-duration streams with custom curves. A gift is a lockup with an oracle-gated cliff.
+
+- [Stellar conditional payments tutorial](https://dev.to/ravixalgorithm/tutorial-7-stellar-smart-contracts-conditional-payments-1le4): Lightweight alternative walkthrough of conditional payments.
+
+
+
+#### Accountability Pools (Failures Fund Successes)
+
+
+
+Groups collectively commit to a shared goal: those who fail fund the rewards of those who succeed.
+
+
+
+- [CommitPool V2 pooled-stakes design](https://hackmd.io/@spengrah/SkG1F0uU_): Design doc for pooled commitment stakes.
+
+- [PoolTogether contracts](https://docs.pooltogether.com): Pool accounting and prize distribution to repurpose.
+
+- [aPriori](https://lp.new): Monad-native yield source for the pool.
+
+- [Kintsu](https://kintsu.xyz): Monad liquid staking. Another yield source, alongside Morpho and Curve on Monad.
+
+- [Incentive-design pitfalls](https://theoutline.com/post/8392/weight-loss-wagering-healthywage-dietbet): Web2 postmortem on weight-loss wagering (HealthyWage, DietBet).
+
+
+
+#### Micro-Insurance by the Minute
+
+
+
+Cover your laptop for the next three hours, insure a specific journey, pay only for the moments of actual exposure.
+
+
+
+- [Nexus Mutual](https://nexusmutual.io): $7B+ cover underwritten, $10M+ claims paid. Staking-based pricing model. Docs at docs.nexusmutual.io.
+
+- [Or
+----------------------------------------
+ Monad](https://www.circle.com/blog/now-available-usdc-cctp-wallets-and-contracts-on-monad): Embedded in-app wallets and sponsored network fees. The key to payments that feel like messages.
+
+- [Superfluid](https://docs.superfluid.org): Tips and gifts as open streams.
+
+- [Splits protocol deep-dive](https://www.solidnoob.com/blog/0xSplits): Community walkthrough of the 0xSplits architecture.
+
+
+
+#### Salary Streaming at the Individual Level
+
+
+
+Get paid every second rather than bi-weekly, with idle balances earning yield in the background until you spend them.
+
+
+
+- [Superfluid](https://docs.superfluid.org/docs/concepts/superfluid): Set a flow rate, balances update every second, all flows netted in real time, no locked capital.
+
+- [Sablier Flow](https://sablier.com): Open-ended recurring payments on 24+ EVM chains plus Solana.
+
+- [Payment streaming glossary](https://www.spark.money/glossary/payment-streaming): Streaming architecture comparison.
+
+- [Token streaming models](https://blog.sablier.com/overview-token-streaming-models): Sablier overview, including Superfluid’s liquidator network monitoring sender solvency.
+
+- [Idle-balance yield on Monad](https://lp.new): aPriori sMON, plus Kintsu and Curvance.
+
+- [Earned Wage Access](https://en.wikipedia.org/wiki/Earned_wage_access): The fiat analogue, as a design reference.
+
+
+
+### Social, Attention & Culture
+
+
+
+#### Algorithm Marketplace
+
+
+
+Communities publish, sell, and compete on feed ranking strategies. Creators migrate to the feeds that reward them.
+
+
+
+- [Bluesky: Algorithmic Choi
+----------------------------------------

@@ -1,0 +1,1071 @@
+/* ==========================================================================
+   BEYINI WEB APP SYSTEM PAGE STYLES
+   MoonPay-inspired deep onyx aesthetic, Monad purple / orange accents
+   Natural desktop widescreen view + fully responsive mobile layout (NO phone mockup)
+   ========================================================================== */
+
+/* Fullscreen System App Page Wrapper */
+.beyini-app-system {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #07070A;
+  color: #FFFFFF;
+  z-index: 99999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  animation: appSysFadeIn 0.25s ease-out;
+}
+
+@keyframes appSysFadeIn {
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Ambient Radial Background Glows */
+.beyini-sys-ambient-glow {
+  position: fixed;
+  top: -150px;
+  left: 20%;
+  width: 800px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(131, 110, 249, 0.12) 0%, rgba(255, 85, 0, 0.05) 50%, transparent 75%);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.beyini-sys-ambient-glow-bottom {
+  position: fixed;
+  bottom: -150px;
+  right: 15%;
+  width: 650px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(95, 37, 219, 0.10) 0%, transparent 70%);
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   1. TOP SYSTEM APP HEADER / NAVIGATION
+   ========================================================================== */
+.beyini-sys-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background: rgba(10, 10, 14, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+.beyini-sys-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.beyini-sys-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.beyini-sys-net-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: rgba(131, 110, 249, 0.12);
+  border: 1px solid rgba(131, 110, 249, 0.28);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #C4B5FD;
+}
+
+.beyini-sys-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: netPulse 2s infinite ease-in-out;
+}
+
+@keyframes netPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* Header Middle Stats Ticker (Desktop only) */
+.beyini-sys-ticker {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.beyini-sys-ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.beyini-sys-ticker-item strong {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* Header Right Actions */
+.beyini-sys-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.beyini-sys-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beyini-sys-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.beyini-sys-exit-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beyini-sys-exit-icon-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ==========================================================================
+   2. SYSTEM APP MAIN CONTAINER (DESKTOP WIDESCREEN & MOBILE RESPONSIVE)
+   ========================================================================== */
+.beyini-sys-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 32px 64px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   3. STAGE 1: WELCOME & ONBOARDING (NATURAL 2-COLUMN DESKTOP VIEW)
+   ========================================================================== */
+.beyini-onboarding-desktop-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 56px;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+}
+
+/* Left Hero Presentation Column */
+.beyini-ob-left-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.beyini-ob-tag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(131, 110, 249, 0.12);
+  border: 1px solid rgba(131, 110, 249, 0.3);
+  border-radius: 9999px;
+  color: #C4B5FD;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.beyini-ob-hero-title {
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.beyini-ob-hero-title span {
+  background: linear-gradient(135deg, #FF5500 0%, #FF8A00 50%, #FFD600 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.beyini-ob-hero-subtitle {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 540px;
+  margin: 0;
+}
+
+/* MoonPay Feature Highlights Grid */
+.beyini-ob-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.beyini-ob-feat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.beyini-ob-feat-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(131, 110, 249, 0.3);
+  transform: translateY(-2px);
+}
+
+.beyini-ob-feat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.beyini-ob-feat-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.beyini-ob-feat-desc {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.45;
+}
+
+/* Right Interactive Onboarding Card */
+.beyini-ob-card {
+  background: #0B0B0F;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.beyini-ob-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.beyini-ob-card-title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.beyini-ob-card-sub {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0;
+}
+
+/* Input Fields */
+.beyini-ob-input-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.beyini-ob-input-box:focus-within {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #836EF9;
+  box-shadow: 0 0 0 3px rgba(131, 110, 249, 0.2);
+}
+
+.beyini-ob-input-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.beyini-ob-input-box input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Primary Buttons */
+.beyini-ob-primary-btn {
+  width: 100%;
+  padding: 15px 24px;
+  background: #FFFFFF;
+  color: #000000;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.beyini-ob-primary-btn:hover:not(:disabled) {
+  background: #E5E5E5;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+}
+
+.beyini-ob-primary-btn.accent {
+  background: #FF5500;
+  color: #FFFFFF;
+}
+
+.beyini-ob-primary-btn.accent:hover:not(:disabled) {
+  background: #FF661A;
+  box-shadow: 0 10px 25px rgba(255, 85, 0, 0.3);
+}
+
+.beyini-ob-primary-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.beyini-ob-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.beyini-ob-divider::before,
+.beyini-ob-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Social Buttons Grid */
+.beyini-ob-social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.beyini-ob-social-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beyini-ob-social-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Web3 Wallet Option */
+.beyini-ob-wallet-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 12px 18px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.88rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.beyini-ob-wallet-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: #836EF9;
+  color: #FFFFFF;
+}
+
+.beyini-ob-disclaimer {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  margin: 0;
+}
+
+/* ==========================================================================
+   4. STAGE 2: 6-DIGIT OTP VERIFICATION (NATURAL DESKTOP CARD)
+   ========================================================================== */
+.beyini-otp-container {
+  max-width: 520px;
+  width: 100%;
+  margin: 40px auto;
+  background: #0B0B0F;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  padding: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+.beyini-otp-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(131, 110, 249, 0.15);
+  border: 1px solid rgba(131, 110, 249, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C4B5FD;
+  margin-bottom: 20px;
+}
+
+.beyini-otp-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 8px;
+}
+
+.beyini-otp-sub {
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0 0 28px;
+}
+
+.beyini-otp-sub strong {
+  color: #FFFFFF;
+}
+
+/* OTP Boxes with Desktop Keyboard Typing */
+.beyini-otp-boxes-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.beyini-otp-box-cell {
+  width: 54px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: text;
+}
+
+.beyini-otp-box-cell.active {
+  border-color: #836EF9;
+  box-shadow: 0 0 0 3px rgba(131, 110, 249, 0.25);
+  background: rgba(131, 110, 249, 0.08);
+}
+
+.beyini-otp-box-cell.filled {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Autofill Pill */
+.beyini-otp-autofill-btn {
+  background: rgba(131, 110, 249, 0.12);
+  border: 1px solid rgba(131, 110, 249, 0.35);
+  color: #C4B5FD;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.beyini-otp-autofill-btn:hover {
+  background: rgba(131, 110, 249, 0.22);
+  border-color: #836EF9;
+  transform: translateY(-1px);
+}
+
+/* Timer and Back */
+.beyini-otp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.beyini-otp-link {
+  background: transparent;
+  border: none;
+  color: #836EF9;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.beyini-otp-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   5. STAGE 3: RADAR VERIFICATION & SUCCESS
+   ========================================================================== */
+.beyini-sys-verifying-wrap {
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 24px;
+}
+
+.beyini-sys-radar {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beyini-sys-radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(131, 110, 249, 0.4);
+  animation: radarWave 1.8s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.beyini-sys-radar-ring:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+@keyframes radarWave {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.beyini-sys-radar-core {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #0B0B0F;
+  border: 2px solid #836EF9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C4B5FD;
+  box-shadow: 0 0 35px rgba(131, 110, 249, 0.45);
+  z-index: 2;
+}
+
+/* ==========================================================================
+   6. STAGE 4: FULL SYSTEM WEB APP DASHBOARD (DESKTOP WIDESCREEN)
+   ========================================================================== */
+.beyini-dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+/* Top Portfolio & Stats Bar */
+.beyini-dash-top-card {
+  background: #0B0B0F;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.beyini-dash-top-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100%;
+  background: radial-gradient(circle, rgba(131, 110, 249, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.beyini-dash-balance-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.beyini-dash-bal-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.beyini-dash-bal-amount {
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+}
+
+.beyini-dash-bal-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #10B981;
+  font-weight: 600;
+}
+
+/* Quick Action Buttons Group */
+.beyini-dash-action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.beyini-dash-act-btn {
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.beyini-dash-act-btn.primary {
+  background: #FF5500;
+  color: #FFFFFF;
+}
+
+.beyini-dash-act-btn.primary:hover {
+  background: #FF661A;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(255, 85, 0, 0.35);
+}
+
+.beyini-dash-act-btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.beyini-dash-act-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Desktop Main Grid: 2 Columns (Assets & Activity on Left, Send on Right) */
+.beyini-dash-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+}
+
+/* Left Section: Assets Table + Activity */
+.beyini-dash-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.beyini-dash-panel {
+  background: #0B0B0F;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.beyini-dash-panel-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.beyini-dash-panel-badge {
+  font-size: 0.76rem;
+  color: #A78BFA;
+  background: rgba(131, 110, 249, 0.15);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+/* Assets List */
+.beyini-dash-assets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.beyini-dash-asset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.beyini-dash-asset-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.beyini-dash-asset-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.beyini-dash-asset-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.beyini-dash-asset-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.beyini-dash-asset-ticker {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.beyini-dash-asset-right {
+  text-align: right;
+}
+
+.beyini-dash-asset-val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.beyini-dash-asset-sub {
+  font-size: 0.78rem;
+  color: #10B981;
+}
+
+/* Transactions Table */
+.beyini-dash-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.beyini-dash-tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  font-size: 0.88rem;
+}
+
+.beyini-dash-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.beyini-dash-tx-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+/* Right Section: Interactive Instant Send Card */
+.beyini-dash-send-card {
+  background: #0B0B0F;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  height: fit-content;
+}
+
+.beyini-dash-send-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.beyini-dash-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.beyini-dash-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.beyini-dash-send-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.beyini-dash-send-input:focus {
+  border-color: #836EF9;
+  box-shadow: 0 0 0 3px rgba(131, 110, 249, 0.2);
+}
+
+.beyini-dash-token-select {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.beyini-token-pill {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.beyini-token-pill.active {
+  background: rgba(131, 110, 249, 0.2);
+  border-color: #836EF9;
+  color: #FFFFFF;
+}
+
+.beyini-dash-settle-notice {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  color: #6EE7B7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   7. RESPONSIVE MEDIA QUERIES (MOBILE NATURAL VIEW)
+   ========================================================================== */
+@media (max-width: 980px) {
+  .beyini-sys-header {
+    padding: 0 20px;
+  }
+  .beyini-sys-ticker {
+    display: none;
+  }
+  .beyini-onboarding-desktop-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .beyini-dash-grid {
+    grid-template-columns: 1fr;
+  }
+  .beyini-dash-top-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .beyini-dash-action-group {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .beyini-dash-act-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .beyini-sys-main {
+    padding: 24px 16px 48px;
+  }
+  .beyini-ob-features-grid {
+    grid-template-columns: 1fr;
+  }
+  .beyini-ob-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+  .beyini-otp-container {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+  .beyini-otp-boxes-row {
+    gap: 6px;
+  }
+  .beyini-otp-box-cell {
+    width: 44px;
+    height: 52px;
+    font-size: 1.3rem;
+  }
+  .beyini-ob-social-grid {
+    grid-template-columns: 1fr;
+  }
+}

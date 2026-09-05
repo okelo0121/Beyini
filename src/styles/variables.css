@@ -1,0 +1,55 @@
+:root {
+  /* Color Palette - Vibrant Orange Theme (No Gradients) */
+  --color-primary: #FF5500;
+  --color-primary-hover: #E04B00;
+  --color-primary-light: #FF7733;
+  --color-primary-gradient: #FF5500;
+  --color-primary-h-gradient: #FF5500;
+  
+  --color-dark-bg: #000000;
+  --color-card-dark: #1F2123;
+  --color-card-dark-alt: #1E1F21;
+  --color-dark-gradient: #1E1F21;
+  
+  --color-card-light: #F0F0F0;
+  --color-card-light-hover: #E6E6E6;
+  --color-white: #FFFFFF;
+  --color-offwhite: #F8F9FA;
+  
+  --color-gold: #FF5500;
+  --color-gold-gradient: #FF5500;
+  --color-blue-accent: #FF5500;
+  --color-cyan-accent: #FF7733;
+  --color-pink-accent: #FF8833;
+  
+  --color-text-primary: #000000;
+  --color-text-secondary: #555555;
+  --color-text-white: #FFFFFF;
+  --color-text-muted: #BBBBBB;
+  --color-border-muted: #8A8A8A;
+  --color-border-subtle: rgba(255, 255, 255, 0.15);
+
+  /* Typography */
+  --font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Radii */
+  --radius-pill: 100px;
+  --radius-round: 9999px;
+  --radius-section: 72px;
+  --radius-card-large: 40px;
+  --radius-card-med: 30px;
+  --radius-card-sm: 20px;
+
+  /* Shadows - Warm Orange Glow */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.18);
+  --shadow-glow: 0 0 30px rgba(255, 85, 0, 0.4);
+  --shadow-glow-gold: 0 0 25px rgba(255, 85, 0, 0.3);
+
+  /* Layout */
+  --max-width: 1440px;
+  --page-padding-desktop: 80px;
+  --page-padding-tablet: 40px;
+  --page-padding-mobile: 20px;
+}

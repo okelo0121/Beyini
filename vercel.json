@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/faucet",
+      "destination": "/api/faucet"
+    },
+    {
+      "source": "/api/payments/(.*)",
+      "destination": "/api/payments?id=$1"
+    },
+    {
+      "source": "/api/payments",
+      "destination": "/api/payments"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

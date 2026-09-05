@@ -1,0 +1,148 @@
+.explore-footer-section {
+  background: var(--color-dark-bg);
+  border-top-left-radius: var(--radius-section);
+  border-top-right-radius: var(--radius-section);
+  padding: 130px 0 70px 0;
+  color: var(--color-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-header {
+  margin-bottom: 72px;
+}
+
+.explore-title {
+  font-size: clamp(3.5rem, 7.5vw, 8.5rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: var(--color-white);
+}
+
+/* Directory Tag Cloud */
+.explore-tag-cloud {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-bottom: 120px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+
+.directory-pill {
+  height: 80px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-muted);
+  background: transparent;
+  color: var(--color-white);
+  font-size: 1.875rem;
+  font-weight: 400;
+  padding: 0 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.directory-pill:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 85, 0, 0.4);
+}
+
+.directory-pill.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.tag-count-badge {
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+/* Footer Bottom Bar */
+.footer-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 48px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-logo {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.footer-legal-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--color-white);
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
+}
+
+.footer-legal-link {
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.2s ease;
+}
+
+.footer-legal-link:hover {
+  color: var(--color-primary-light);
+}
+
+.footer-separator {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .explore-footer-section {
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    padding: 80px 0 50px 0;
+  }
+
+  .directory-pill {
+    height: 64px;
+    font-size: 1.35rem;
+    padding: 0 28px;
+  }
+
+  .footer-bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .directory-pill {
+    height: 52px;
+    font-size: 1.1rem;
+    padding: 0 20px;
+  }
+  
+  .footer-legal-links {
+    font-size: 0.95rem;
+    gap: 12px;
+  }
+}
