@@ -23,22 +23,22 @@ export const RecipientSearch: React.FC<RecipientSearchProps> = ({
   // Filter existing recipients
   const filtered = query.trim()
     ? allRecipients.filter((r) => {
-        const q = query.toLowerCase().replace(/^@/, '');
-        const matchesQuery = 
-          r.name.toLowerCase().includes(q) ||
-          (r.email && r.email.toLowerCase().includes(q)) ||
-          (r.username && r.username.toLowerCase().includes(q)) ||
-          (r.twitter && r.twitter.toLowerCase().includes(q)) ||
-          (r.discord && r.discord.toLowerCase().includes(q)) ||
-          (r.phone && r.phone.toLowerCase().includes(q));
+      const q = query.toLowerCase().replace(/^@/, '');
+      const matchesQuery =
+        r.name.toLowerCase().includes(q) ||
+        (r.email && r.email.toLowerCase().includes(q)) ||
+        (r.username && r.username.toLowerCase().includes(q)) ||
+        (r.twitter && r.twitter.toLowerCase().includes(q)) ||
+        (r.discord && r.discord.toLowerCase().includes(q)) ||
+        (r.phone && r.phone.toLowerCase().includes(q));
 
-        if (!matchesQuery) return false;
-        if (activeFilter === 'twitter') return Boolean(r.twitter || r.username);
-        if (activeFilter === 'discord') return Boolean(r.discord);
-        if (activeFilter === 'email') return Boolean(r.email);
-        if (activeFilter === 'phone') return Boolean(r.phone);
-        return true;
-      })
+      if (!matchesQuery) return false;
+      if (activeFilter === 'twitter') return Boolean(r.twitter || r.username);
+      if (activeFilter === 'discord') return Boolean(r.discord);
+      if (activeFilter === 'email') return Boolean(r.email);
+      if (activeFilter === 'phone') return Boolean(r.phone);
+      return true;
+    })
     : [];
 
   // Close dropdown on outside click
@@ -234,10 +234,10 @@ export const RecipientSearch: React.FC<RecipientSearchProps> = ({
           }}
           placeholder={
             activeFilter === 'twitter' ? 'Enter X handle (e.g. @username)' :
-            activeFilter === 'discord' ? 'Enter Discord username (e.g. username)' :
-            activeFilter === 'email' ? 'Enter email address (e.g. alex@example.com)' :
-            activeFilter === 'phone' ? 'Enter phone number (e.g. +1...)' :
-            'X handle (@username), Discord, email or phone'
+              activeFilter === 'discord' ? 'Enter Discord username (e.g. username)' :
+                activeFilter === 'email' ? 'Enter email address (e.g. alex@example.com)' :
+                  activeFilter === 'phone' ? 'Enter phone number (e.g. +1...)' :
+                    'X handle (@username), Discord, email or phone'
           }
         />
       </form>
@@ -258,7 +258,7 @@ export const RecipientSearch: React.FC<RecipientSearchProps> = ({
               onClick={() => handleSelect(r)}
             >
               <div className="by-sr-left">
-                <div 
+                <div
                   className="by-avatar"
                   style={{ width: '36px', height: '36px', background: r.avatarBg, color: r.avatarText, fontSize: '0.88rem' }}
                 >
@@ -278,44 +278,44 @@ export const RecipientSearch: React.FC<RecipientSearchProps> = ({
           {/* Dynamic Social / Custom Recipient Card */}
           <div
             className="by-search-result-item"
-            style={{ 
-              background: 
+            style={{
+              background:
                 detectedType === 'twitter' || activeFilter === 'twitter' ? 'rgba(29, 155, 240, 0.12)' :
-                detectedType === 'discord' || activeFilter === 'discord' ? 'rgba(88, 101, 242, 0.12)' :
-                'var(--by-orange-tint)' 
+                  detectedType === 'discord' || activeFilter === 'discord' ? 'rgba(88, 101, 242, 0.12)' :
+                    'var(--by-orange-tint)'
             }}
             onClick={handleCustomSubmit}
           >
             <div className="by-sr-left">
-              <div 
+              <div
                 className="by-avatar"
-                style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  background: 
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  background:
                     detectedType === 'twitter' || activeFilter === 'twitter' ? '#1D9BF0' :
-                    detectedType === 'discord' || activeFilter === 'discord' ? '#5865F2' :
-                    'var(--by-orange)', 
-                  color: '#FFFFFF', 
-                  fontSize: '0.88rem' 
+                      detectedType === 'discord' || activeFilter === 'discord' ? '#5865F2' :
+                        'var(--by-orange)',
+                  color: '#FFFFFF',
+                  fontSize: '0.88rem'
                 }}
               >
                 {detectedType === 'twitter' || activeFilter === 'twitter' ? 'X' :
-                 detectedType === 'discord' || activeFilter === 'discord' ? 'D' : '+'}
+                  detectedType === 'discord' || activeFilter === 'discord' ? 'D' : '+'}
               </div>
               <div>
-                <div className="by-sr-name" style={{ 
-                  color: 
+                <div className="by-sr-name" style={{
+                  color:
                     detectedType === 'twitter' || activeFilter === 'twitter' ? '#38bdf8' :
-                    detectedType === 'discord' || activeFilter === 'discord' ? '#a5b4fc' :
-                    'var(--by-orange)' 
+                      detectedType === 'discord' || activeFilter === 'discord' ? '#a5b4fc' :
+                        'var(--by-orange)'
                 }}>
                   Send to "{query.trim()}"
                 </div>
                 <div className="by-sr-identifier" style={{ color: '#94a3b8' }}>
                   {detectedType === 'twitter' || activeFilter === 'twitter' ? 'Recipient will authenticate with X to claim on Monad' :
-                   detectedType === 'discord' || activeFilter === 'discord' ? 'Recipient will authenticate with Discord to claim on Monad' :
-                   'Recipient will claim on Monad Testnet via escrow'}
+                    detectedType === 'discord' || activeFilter === 'discord' ? 'Recipient will authenticate with Discord to claim on Monad' :
+                      'Recipient will claim on Monad Testnet via escrow'}
                 </div>
               </div>
             </div>

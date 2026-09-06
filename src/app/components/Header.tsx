@@ -29,6 +29,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getTabTitle = () => {
     switch (currentTab) {
+      case 'home':
+        return 'Dashboard';
       case 'send':
         return 'Send money';
       case 'activity':
@@ -38,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
       case 'profile':
         return 'Profile';
       default:
-        return 'Send money';
+        return 'Dashboard';
     }
   };
 

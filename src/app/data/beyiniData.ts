@@ -101,8 +101,108 @@ export const INITIAL_RECIPIENTS: Recipient[] = [
     initial: 'E',
     verified: true,
     preferredMethod: 'Wallet'
+  },
+  {
+    id: 'rec-4',
+    name: 'David Kim',
+    email: 'david.kim@email.com',
+    username: 'davidk',
+    avatarBg: '#F3E8FF',
+    avatarText: '#7E22CE',
+    initial: 'D',
+    verified: true,
+    preferredMethod: 'Wallet'
   }
 ];
 
-export const INITIAL_TRANSACTIONS: Transaction[] = [];
+export const INITIAL_TRANSACTIONS: Transaction[] = [
+  {
+    id: 'tx-sample-1',
+    txHash: '0x6e73c882194ad93214b7e882410a8b9f10923c4e',
+    isIncoming: false,
+    recipient: INITIAL_RECIPIENTS[0],
+    amount: 10.00,
+    asset: 'USDC',
+    network: 'Monad Testnet',
+    status: 'NOTIFIED',
+    statusLabel: 'Waiting for recipient',
+    dateCategory: 'Today',
+    timestamp: '2h ago',
+    receivingMethod: 'Escrow (Monad claim link)',
+    lifecycle: [
+      { label: 'Payment secured on Monad', completed: true },
+      { label: 'Claim link generated', completed: true },
+      { label: 'Recipient identity verified', completed: false, active: true },
+      { label: 'Settlement confirmed', completed: false }
+    ]
+  },
+  {
+    id: 'tx-sample-2',
+    txHash: '0x9a3e491204d88e01924510cae78491c9201e85a1',
+    isIncoming: false,
+    recipient: INITIAL_RECIPIENTS[1],
+    amount: 25.00,
+    asset: 'USDC',
+    network: 'Monad Testnet',
+    status: 'SETTLED',
+    statusLabel: 'Completed',
+    dateCategory: 'Yesterday',
+    timestamp: '1d ago',
+    receivingMethod: 'Escrow (Claimed to wallet)',
+    lifecycle: [
+      { label: 'Payment secured on Monad', completed: true },
+      { label: 'Claim link generated', completed: true },
+      { label: 'Recipient identity verified', completed: true },
+      { label: 'Settlement confirmed', completed: true }
+    ]
+  },
+  {
+    id: 'tx-sample-3',
+    txHash: '0x4f128bc990142e01a8818c72839410ea092389cd',
+    isIncoming: false,
+    recipient: INITIAL_RECIPIENTS[2],
+    amount: 15.00,
+    asset: 'USDC',
+    network: 'Monad Testnet',
+    status: 'SETTLED',
+    statusLabel: 'Completed',
+    dateCategory: 'Earlier',
+    timestamp: '2d ago',
+    receivingMethod: 'Escrow (Claimed to wallet)',
+    lifecycle: [
+      { label: 'Payment secured on Monad', completed: true },
+      { label: 'Claim link generated', completed: true },
+      { label: 'Recipient identity verified', completed: true },
+      { label: 'Settlement confirmed', completed: true }
+    ]
+  },
+  {
+    id: 'tx-sample-4',
+    txHash: '0x1276a09bcde10928374019283401928409128374',
+    isIncoming: false,
+    recipient: {
+      id: 'rec-4',
+      name: 'David Kim',
+      email: 'david.kim@email.com',
+      avatarBg: '#F3E8FF',
+      avatarText: '#7E22CE',
+      initial: 'D',
+      verified: true
+    },
+    amount: 5.00,
+    asset: 'USDC',
+    network: 'Monad Testnet',
+    status: 'SETTLED',
+    statusLabel: 'Completed',
+    dateCategory: 'Earlier',
+    timestamp: '3d ago',
+    receivingMethod: 'Escrow (Claimed to wallet)',
+    lifecycle: [
+      { label: 'Payment secured on Monad', completed: true },
+      { label: 'Claim link generated', completed: true },
+      { label: 'Recipient identity verified', completed: true },
+      { label: 'Settlement confirmed', completed: true }
+    ]
+  }
+];
 

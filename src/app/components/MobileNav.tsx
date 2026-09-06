@@ -1,5 +1,5 @@
 import React from 'react';
-import { Send, Activity, Users, User } from 'lucide-react';
+import { Home, Send, Activity, Users, User } from 'lucide-react';
 import type { AppTab } from './Sidebar';
 
 interface MobileNavProps {
@@ -9,6 +9,7 @@ interface MobileNavProps {
 
 export const MobileNav: React.FC<MobileNavProps> = ({ currentTab, onSelectTab }) => {
   const items: { id: AppTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'home', label: 'Home', icon: <Home size={18} /> },
     { id: 'send', label: 'Send', icon: <Send size={18} /> },
     { id: 'activity', label: 'Activity', icon: <Activity size={18} /> },
     { id: 'recipients', label: 'Recipients', icon: <Users size={18} /> },

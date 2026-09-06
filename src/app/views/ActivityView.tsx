@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Transaction } from '../data/beyiniData';
-import { X, Check, Clock, ExternalLink, Copy, CheckCircle2 } from 'lucide-react';
+import { X, Check, Clock, ExternalLink, Copy, CheckCircle2, ArrowRight } from 'lucide-react';
 import { NotificationService } from '../../services/NotificationService';
 
 interface ActivityViewProps {
@@ -8,8 +8,11 @@ interface ActivityViewProps {
   onOpenSend: () => void;
 }
 
+type FilterTab = 'all' | 'sent' | 'received';
+
 export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpenSend }) => {
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const [isCopied, setIsCopied] = useState(false);
 
   // Group transactions by dateCategory
@@ -19,6 +22,16 @@ export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpen
     'Last Week',
     'Earlier'
   ];
+
+  // Filter transactions
+  const filteredTransactions = transactions.filter((t) => {
+    if (activeFilter === 'sent') return !t.isIncoming;
+    if (activeFilter === 'received') return t.isIncoming;
+    return true;
+  });
+
+  const sentCount = transactions.filter((t) => !t.isIncoming).length;
+  const receivedCount = transactions.filter((t) => t.isIncoming).length;
 
   const getStatusPillClass = (status: string) => {
     switch (status) {
@@ -38,64 +51,128 @@ export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpen
 
   return (
     <div className="by-activity-page">
+      {/* Top Header Row */}
       <div className="by-page-title-row">
-        <h1 className="by-page-title">Activity</h1>
+        <div>
+          <h1 className="by-page-title">Activity</h1>
+          <p style={{ color: 'var(--by-text-secondary)', fontSize: '0.9rem', marginTop: '2px' }}>
+            Track your payments, escrow locks, and received transfers.
+          </p>
+        </div>
+
         <button 
-          className="by-primary-btn" 
+          className="by-btn-primary" 
           style={{ width: 'auto', padding: '10px 20px', fontSize: '0.88rem' }}
           onClick={onOpenSend}
         >
           <span>Send money</span>
-          <span>&rarr;</span>
+          <ArrowRight size={16} />
         </button>
       </div>
 
+      {/* Filter Tabs (Screen 6 / Screen 12) */}
+      <div className="by-activity-tabs-row">
+        <button
+          className={`by-activity-tab-btn ${activeFilter === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('all')}
+        >
+          <span>All</span>
+          <span className="by-tab-count">{transactions.length}</span>
+        </button>
+
+        <button
+          className={`by-activity-tab-btn ${activeFilter === 'sent' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('sent')}
+        >
+          <span>Sent</span>
+          <span className="by-tab-count">{sentCount}</span>
+        </button>
+
+        <button
+          className={`by-activity-tab-btn ${activeFilter === 'received' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('received')}
+        >
+          <span>Received</span>
+          <span className="by-tab-count">{receivedCount}</span>
+        </button>
+      </div>
+
+      {/* Grouped Activity Cards */}
       {categories.map((cat) => {
-        const txsInCat = transactions.filter((t) => t.dateCategory === cat);
+        const txsInCat = filteredTransactions.filter((t) => t.dateCategory === cat);
         if (txsInCat.length === 0) return null;
 
         return (
           <div key={cat} className="by-date-group">
             <div className="by-date-group-heading">{cat}</div>
-            {txsInCat.map((tx) => (
-              <div
-                key={tx.id}
-                className="by-tx-row-card"
-                onClick={() => setSelectedTx(tx)}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="by-tx-left">
-                  <div
-                    className="by-avatar"
-                    style={{ background: tx.recipient.avatarBg, color: tx.recipient.avatarText }}
-                  >
-                    {tx.recipient.initial}
+            <div className="by-activity-card-group">
+              {txsInCat.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="by-tx-row-card"
+                  onClick={() => setSelectedTx(tx)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="by-tx-left">
+                    <div
+                      className="by-avatar"
+                      style={{ 
+                        background: tx.recipient.avatarBg || '#FF6B35', 
+                        color: tx.recipient.avatarText || '#FFFFFF' 
+                      }}
+                    >
+                      {tx.recipient.initial || tx.recipient.name.charAt(0)}
+                    </div>
+                    <div className="by-tx-details">
+                      <span className="by-tx-name">{tx.recipient.name}</span>
+                      <span className="by-tx-sub">
+                        {tx.receivingMethod || 'Monad Escrow'} · {tx.timestamp}
+                      </span>
+                    </div>
                   </div>
-                  <div className="by-tx-details">
-                    <span className="by-tx-name">{tx.recipient.name}</span>
-                    <span className="by-tx-sub">
-                      {tx.receivingMethod || 'Recipient choosing'} · {tx.timestamp}
+
+                  <div className="by-tx-right">
+                    <div className="by-tx-amount-col">
+                      <span 
+                        className="by-tx-amount"
+                        style={tx.isIncoming ? { color: '#10B981', fontWeight: 700 } : undefined}
+                      >
+                        {tx.isIncoming ? `+$${tx.amount.toFixed(2)}` : `-$${tx.amount.toFixed(2)}`} USDC
+                      </span>
+                    </div>
+                    <span className={`by-status-pill ${getStatusPillClass(tx.status)}`}>
+                      <span className="by-status-dot" />
+                      <span>{tx.statusLabel}</span>
                     </span>
                   </div>
                 </div>
-
-                <div className="by-tx-right">
-                  <span 
-                    className="by-tx-amount"
-                    style={tx.isIncoming ? { color: '#10B981', fontWeight: 700 } : undefined}
-                  >
-                    {tx.isIncoming ? `+$${tx.amount.toFixed(2)}` : `-$${tx.amount.toFixed(2)}`}
-                  </span>
-                  <span className={`by-status-pill ${getStatusPillClass(tx.status)}`}>
-                    {tx.statusLabel}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         );
       })}
+
+      {filteredTransactions.length === 0 && (
+        <div style={{
+          background: 'var(--by-surface)',
+          border: '1px solid var(--by-border)',
+          borderRadius: '16px',
+          padding: '48px 24px',
+          textAlign: 'center',
+          color: 'var(--by-text-secondary)',
+          marginTop: '16px'
+        }}>
+          <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--by-text)' }}>
+            No transactions found
+          </p>
+          <p style={{ fontSize: '0.88rem', marginTop: '4px' }}>
+            {activeFilter === 'received' 
+              ? 'Incoming transfers claimed on Monad will appear here.'
+              : 'You have not sent any payments matching this filter.'}
+          </p>
+        </div>
+      )}
 
       {/* Detailed Transaction Slide-over Drawer */}
       {selectedTx && (
@@ -127,7 +204,7 @@ export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpen
             </div>
 
             {/* Key Meta Rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.9rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.9rem', marginTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--by-text-secondary)' }}>Status</span>
                 <span className={`by-status-pill ${getStatusPillClass(selectedTx.status)}`}>
@@ -185,7 +262,7 @@ export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpen
 
             {/* Lifecycle Tracker */}
             <div>
-              <h4 style={{ fontSize: '0.88rem', fontWeight: 700, margin: '16px 0 10px', color: 'var(--by-text)' }}>
+              <h4 style={{ fontSize: '0.88rem', fontWeight: 700, margin: '20px 0 10px', color: 'var(--by-text)' }}>
                 Payment Lifecycle
               </h4>
               <div className="by-lifecycle-card" style={{ background: '#F9F9F8', border: '1px solid var(--by-border)' }}>
@@ -280,3 +357,5 @@ export const ActivityView: React.FC<ActivityViewProps> = ({ transactions, onOpen
     </div>
   );
 };
+
+export default ActivityView;

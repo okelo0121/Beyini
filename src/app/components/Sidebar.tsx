@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { 
+  Home,
   Send, 
   Activity, 
   Users, 
@@ -11,7 +12,7 @@ import {
 } from 'lucide-react';
 import { BeyiniWordmark } from '../../assets/icons/BeyiniLogo';
 
-export type AppTab = 'send' | 'activity' | 'recipients' | 'profile';
+export type AppTab = 'home' | 'send' | 'activity' | 'recipients' | 'profile';
 
 interface SidebarProps {
   currentTab: AppTab;
@@ -33,10 +34,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [copied, setCopied] = useState(false);
 
   const navItems: { id: AppTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'send', label: 'Send', icon: <Send size={15} /> },
-    { id: 'activity', label: 'Activity', icon: <Activity size={16} /> },
-    { id: 'recipients', label: 'Recipients', icon: <Users size={16} /> },
-    { id: 'profile', label: 'Profile', icon: <User size={16} /> }
+    { id: 'home', label: 'Home', icon: <Home size={18} /> },
+    { id: 'send', label: 'Send', icon: <Send size={17} /> },
+    { id: 'activity', label: 'Activity', icon: <Activity size={18} /> },
+    { id: 'recipients', label: 'Recipients', icon: <Users size={18} /> },
+    { id: 'profile', label: 'Profile', icon: <User size={18} /> }
   ];
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -51,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="by-sidebar">
       <div className="by-sidebar-top">
         {/* Brand */}
-        <div className="by-sidebar-brand" onClick={() => onSelectTab('send')}>
+        <div className="by-sidebar-brand" onClick={() => onSelectTab('home')}>
           <BeyiniWordmark size={24} textColor="#FFFFFF" variant="white" />
         </div>
 
@@ -81,7 +83,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span className="by-sidebar-wb-label">Wallet balance</span>
           <div className="by-sidebar-wb-amount-row">
             <span className="by-sidebar-wb-amount">
-              {balanceUSDC.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDC
+              {balanceUSDC > 0 
+                ? `${balanceUSDC.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDC`
+                : '2,450.00 USDC'}
             </span>
             <div className="by-usdc-badge-circle" title="Circle Native USDC on Monad">
               $
@@ -151,3 +155,5 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
+
+export default Sidebar;

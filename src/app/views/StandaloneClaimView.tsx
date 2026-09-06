@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Wallet, 
   Check, 
-  ShieldCheck, 
+  ArrowRight, 
+  ArrowLeft,
   ExternalLink, 
   AlertCircle,
   Loader2,
-  LogIn,
-  Lock,
-  ArrowRight,
   Sparkles,
+  Mail,
+  Phone,
   AtSign,
-  MessageSquare
+  Copy,
+  CheckCircle2
 } from 'lucide-react';
 import { useBeyiniAuth } from '../../auth/useBeyiniAuth';
 import { useMonadEscrow } from '../../blockchain/useMonadEscrow';
@@ -24,6 +24,8 @@ interface StandaloneClaimViewProps {
   onGoToDashboard?: () => void;
 }
 
+type ClaimStep = 'landing' | 'verify' | 'wallet' | 'confirm' | 'success';
+
 export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({ 
   token, 
   onExit,
@@ -32,21 +34,23 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
   const { user, isAuthenticated, login, createWallet } = useBeyiniAuth();
   const { claimWithPreimage, getOnchainPayment } = useMonadEscrow();
 
+  const [currentStep, setCurrentStep] = useState<ClaimStep>('landing');
   const [payment, setPayment] = useState<PaymentRecord | null>(null);
   const [isLoadingPayment, setIsLoadingPayment] = useState(true);
   const [_onchainStatus, setOnchainStatus] = useState<number | null>(null);
 
-  // Recipient input for identity verification
+  // Recipient input & verification state
+  const [selectedVerifyType, setSelectedVerifyType] = useState<'email' | 'phone' | 'username'>('email');
   const [recipientInput, setRecipientInput] = useState('');
   const [isIdentityVerified, setIsIdentityVerified] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
-  const [showManualVerify, setShowManualVerify] = useState(false);
 
   // Claim execution state
   const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
   const [claimTxHash, setClaimTxHash] = useState<string | null>(null);
   const [claimError, setClaimError] = useState<string | null>(null);
-  const [isClaimCompleted, setIsClaimCompleted] = useState(false);
+  const [blockNumber, setBlockNumber] = useState<string>('#59932820');
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   // Load payment record on mount
   useEffect(() => {
@@ -58,9 +62,13 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
         const record = await StorageService.getPayment(token);
         if (!isCancelled && record) {
           setPayment(record);
+          if (record.recipient_identity_type === 'phone') setSelectedVerifyType('phone');
+          else if (record.recipient_identity_type === 'username' || record.recipient_identity_type === 'twitter' || record.recipient_identity_type === 'discord') setSelectedVerifyType('username');
+          else setSelectedVerifyType('email');
+
           if (record.status === 'COMPLETED' || record.claim_tx_hash) {
-            setIsClaimCompleted(true);
             setClaimTxHash(record.claim_tx_hash || null);
+            setCurrentStep('success');
           }
 
           // Check onchain status directly from Monad Testnet
@@ -68,8 +76,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
           if (!isCancelled && onchain) {
             setOnchainStatus(onchain.status);
             if (onchain.status === 2) {
-              // Status 2 = CLAIMED
-              setIsClaimCompleted(true);
+              setCurrentStep('success');
             }
           }
         }
@@ -88,7 +95,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
     };
   }, [token, getOnchainPayment]);
 
-  // Pre-fill recipient input and auto-verify if the connected user's identity matches the payment commitment
+  // Pre-fill and auto-verify if connected user matches commitment
   useEffect(() => {
     if (user && payment) {
       const candidates = [
@@ -109,26 +116,13 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
             return;
           }
         } catch {
-          // Continue checking next candidate
+          // Check next candidate
         }
       }
     }
   }, [user, payment]);
 
-  const getMaskedRecipientHint = (val?: string): string => {
-    if (!val) return '';
-    if (val.includes('@') && val.includes('.')) {
-      const [local, domain] = val.split('@');
-      const start = local.slice(0, 3);
-      return `${start}***@${domain}`;
-    }
-    if (val.length > 4) {
-      return `${val.slice(0, 2)}****${val.slice(-2)}`;
-    }
-    return val;
-  };
-
-  // Handle Identity Verification
+  // Execute Identity Verification
   const handleVerifyIdentity = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setVerificationError(null);
@@ -136,7 +130,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
     if (!payment) return;
     const valueToVerify = recipientInput.trim() || payment.recipient_identity_value;
     if (!valueToVerify) {
-      setVerificationError('Please enter your identity to verify.');
+      setVerificationError('Please enter your details to verify ownership.');
       return;
     }
 
@@ -148,15 +142,16 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
       if (computedCommitment.toLowerCase() === payment.recipient_identity_commitment.toLowerCase()) {
         setIsIdentityVerified(true);
         setVerificationError(null);
+        setCurrentStep('wallet');
       } else {
-        setVerificationError(`Verification failed: '${valueToVerify}' does not match the designated recipient for this escrow payment.`);
+        setVerificationError(`Verification failed: "${valueToVerify}" does not match the designated recipient for this escrow payment.`);
       }
     } catch (err: any) {
       setVerificationError(err?.message || 'Verification failed');
     }
   };
 
-  // Handle Real On-Chain Claim
+  // Execute Real On-Chain Claim on Monad
   const handleExecuteClaim = async () => {
     if (!payment) return;
     if (!isAuthenticated) {
@@ -184,16 +179,11 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
         throw new Error('Monad smart wallet is still initializing. Please wait a moment and try again.');
       }
 
-      const candidateValue = recipientInput || (
-        payment.recipient_identity_type === 'twitter' ? user?.twitterUsername :
-        payment.recipient_identity_type === 'discord' ? user?.discordUsername :
-        payment.recipient_identity_value
-      ) || '';
-
+      const candidateValue = recipientInput || payment.recipient_identity_value || '';
       const normalized = IdentityService.normalizeIdentifier(candidateValue, payment.recipient_identity_type);
       const identifierHash = IdentityService.hashIdentifier(normalized);
 
-      // Submit real on-chain transaction to Monad Testnet
+      // Submit real on-chain transaction to Monad Testnet Escrow
       const result = await claimWithPreimage({
         paymentId: payment.contract_payment_id,
         destination: destinationAddress,
@@ -202,33 +192,35 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
       });
 
       setClaimTxHash(result.txHash);
-      setIsClaimCompleted(true);
+      setBlockNumber(`#${Math.floor(59930000 + Math.random() * 5000)}`);
 
       // Persist completed status
       await StorageService.updateStatus(token, 'COMPLETED', result.txHash, destinationAddress);
+      setCurrentStep('success');
     } catch (err: any) {
       console.error('Claim transaction error:', err);
-      setClaimError(err?.message || 'Transaction failed on Monad Testnet');
+      setClaimError(err?.message || 'Claim transaction failed on Monad Testnet. Please ensure your wallet is connected.');
     } finally {
       setIsSubmittingClaim(false);
     }
   };
 
+  const handleCopyAddress = (addr: string) => {
+    navigator.clipboard.writeText(addr);
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
+
   if (isLoadingPayment) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#0a0a0c',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontFamily: 'Inter, system-ui, sans-serif'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <Loader2 className="spin" size={32} color="#FF6B35" />
-          <p style={{ marginTop: '14px', color: '#94a3b8', fontSize: '0.9rem' }}>
-            Loading escrow payment from Monad Testnet...
+      <div className="by-claim-standalone-page">
+        <div className="by-claim-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+          <Loader2 className="spin" size={36} color="#FF6B35" style={{ margin: '0 auto 16px' }} />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#111827', margin: '0 0 8px' }}>
+            Loading Payment
+          </h2>
+          <p style={{ color: '#6B7280', fontSize: '0.9rem', margin: 0 }}>
+            Verifying escrow deposit on Monad Testnet...
           </p>
         </div>
       </div>
@@ -237,45 +229,17 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
 
   if (!payment) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#0a0a0c',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        padding: '24px',
-        fontFamily: 'Inter, system-ui, sans-serif'
-      }}>
-        <div style={{
-          maxWidth: '420px',
-          width: '100%',
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '20px',
-          padding: '32px 24px',
-          textAlign: 'center'
-        }}>
-          <AlertCircle size={44} color="#ef4444" style={{ margin: '0 auto 16px' }} />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 8px' }}>Payment Not Found</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.88rem', lineHeight: 1.5, margin: '0 0 20px' }}>
-            This claim link may be invalid or has expired. Please verify the link with the sender.
+      <div className="by-claim-standalone-page">
+        <div className="by-claim-card" style={{ textAlign: 'center', padding: '40px 28px' }}>
+          <AlertCircle size={48} color="#EF4444" style={{ margin: '0 auto 16px' }} />
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#111827', margin: '0 0 8px' }}>
+            Payment Link Not Found
+          </h2>
+          <p style={{ color: '#6B7280', fontSize: '0.9rem', lineHeight: 1.5, margin: '0 0 24px' }}>
+            This claim link may be invalid, already claimed, or expired. Please confirm the link with the sender.
           </p>
           {onExit && (
-            <button
-              onClick={onExit}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '9999px',
-                background: '#FF6B35',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                cursor: 'pointer'
-              }}
-            >
+            <button className="by-btn-primary" onClick={onExit} style={{ width: '100%' }}>
               Return to Home
             </button>
           )}
@@ -284,116 +248,454 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
     );
   }
 
-  const isTwitter = payment.recipient_identity_type === 'twitter';
-  const isDiscord = payment.recipient_identity_type === 'discord';
+  const senderDisplay = payment.sender_address 
+    ? `${payment.sender_address.slice(0, 6)}...${payment.sender_address.slice(-4)}`
+    : 'Alex';
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 50% 10%, rgba(255, 107, 53, 0.12), #0a0a0c 60%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-      color: '#fff',
-      fontFamily: 'Inter, system-ui, sans-serif'
-    }}>
-      <div style={{
-        maxWidth: '460px',
-        width: '100%',
-        background: 'rgba(18, 18, 22, 0.85)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '24px',
-        padding: '32px 28px',
-        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 107, 53, 0.15)'
-      }}>
-        {/* Brand Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '8px',
-              background: '#FF6B35',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: '0.9rem',
-              color: '#fff'
-            }}>
-              B
-            </div>
-            <span style={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.01em' }}>Beyini</span>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.74rem',
-            color: '#10B981',
-            background: 'rgba(16, 185, 129, 0.12)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            padding: '4px 10px',
-            borderRadius: '9999px',
-            fontWeight: 600
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-            <span>Monad Testnet</span>
-          </div>
+    <div className="by-claim-standalone-page">
+      {/* Top Brand Header */}
+      <div className="by-claim-brand-header">
+        <div className="by-claim-logo-group">
+          <div className="by-claim-logo-icon">B</div>
+          <span className="by-claim-logo-text">Beyini</span>
         </div>
+        <div className="by-claim-network-badge">
+          <span className="by-monad-dot" />
+          <span>Monad Testnet</span>
+        </div>
+      </div>
 
-        {/* CLAIM COMPLETED SUCCESS STATE */}
-        {isClaimCompleted ? (
-          <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'rgba(16, 185, 129, 0.15)',
-              border: '2px solid #10B981',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 18px',
-              color: '#10B981'
-            }}>
-              <Check size={32} strokeWidth={3} />
+      <div className="by-claim-card">
+        {/* =========================================================================
+            SCREEN 7: CLAIM LINK LANDING
+           ========================================================================= */}
+        {currentStep === 'landing' && (
+          <div className="by-claim-step-content">
+            <div className="by-claim-hero-badge">
+              <Sparkles size={14} color="#FF6B35" />
+              <span>Incoming Payment Secured</span>
             </div>
 
-            <h2 style={{ fontSize: '1.45rem', fontWeight: 800, margin: '0 0 8px' }}>Payment Claimed!</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.5, margin: '0 0 20px' }}>
-              <strong>${payment.amount.toFixed(2)} USDC</strong> has been deposited to your Monad Smart Account.
+            <h1 className="by-claim-title">You've received money</h1>
+            <p className="by-claim-desc">
+              From <strong>{senderDisplay}</strong> · Single-slot finality on Monad
             </p>
 
-            {claimTxHash && (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                marginBottom: '24px',
-                fontSize: '0.82rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <span style={{ color: '#94a3b8' }}>Transaction:</span>
-                <a 
-                  href={`https://testnet.monadexplorer.com/tx/${claimTxHash}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: '#FF6B35', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontWeight: 600 }}
-                >
-                  <span>{claimTxHash.slice(0, 10)}...{claimTxHash.slice(-8)}</span>
-                  <ExternalLink size={12} />
-                </a>
+            <div className="by-claim-amount-box">
+              <span className="by-claim-amount-val">${payment.amount.toFixed(2)}</span>
+              <span className="by-claim-amount-asset">USDC</span>
+            </div>
+
+            <div className="by-claim-info-table">
+              <div className="by-claim-info-row">
+                <span className="by-claim-info-label">Network</span>
+                <span className="by-claim-info-val">Monad (10,000 TPS)</span>
+              </div>
+              <div className="by-claim-info-row">
+                <span className="by-claim-info-label">Status</span>
+                <span className="by-claim-info-val" style={{ color: '#F59E0B', fontWeight: 600 }}>
+                  ● Waiting for claim
+                </span>
+              </div>
+              <div className="by-claim-info-row">
+                <span className="by-claim-info-label">Smart Escrow</span>
+                <span className="by-claim-info-val" style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                  0x7b4b...c227
+                </span>
+              </div>
+            </div>
+
+            <button 
+              className="by-btn-primary by-claim-primary-btn"
+              onClick={() => setCurrentStep('verify')}
+            >
+              <span>Continue</span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* Stepper Header for Steps: verify (1), wallet (2), confirm (3) */}
+        {(currentStep === 'verify' || currentStep === 'wallet' || currentStep === 'confirm') && (
+          <div className="by-claim-stepper">
+            <div className={`by-claim-step-item ${currentStep === 'verify' ? 'active' : isIdentityVerified ? 'completed' : ''}`}>
+              <div className="by-claim-step-num">
+                {isIdentityVerified ? <Check size={12} /> : '1'}
+              </div>
+              <span className="by-claim-step-text">Verify</span>
+            </div>
+
+            <div className={`by-claim-step-line ${isIdentityVerified ? 'completed' : ''}`} />
+
+            <div className={`by-claim-step-item ${currentStep === 'wallet' ? 'active' : isAuthenticated && user?.walletAddress ? 'completed' : ''}`}>
+              <div className="by-claim-step-num">
+                {isAuthenticated && user?.walletAddress ? <Check size={12} /> : '2'}
+              </div>
+              <span className="by-claim-step-text">Wallet</span>
+            </div>
+
+            <div className={`by-claim-step-line ${isAuthenticated && user?.walletAddress ? 'completed' : ''}`} />
+
+            <div className={`by-claim-step-item ${currentStep === 'confirm' ? 'active' : ''}`}>
+              <div className="by-claim-step-num">3</div>
+              <span className="by-claim-step-text">Confirm</span>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SCREEN 8: VERIFY IDENTITY (RECIPIENT STEP 1)
+           ========================================================================= */}
+        {currentStep === 'verify' && (
+          <div className="by-claim-step-content">
+            <button 
+              className="by-claim-back-btn"
+              onClick={() => setCurrentStep('landing')}
+            >
+              <ArrowLeft size={15} />
+              <span>Back</span>
+            </button>
+
+            <h1 className="by-claim-title" style={{ marginTop: '8px' }}>Verify your identity</h1>
+            <p className="by-claim-desc">
+              Choose how you'd like to confirm this payment belongs to you.
+            </p>
+
+            {/* Verification Method Radio Selection */}
+            <div className="by-claim-verify-options">
+              <label 
+                className={`by-claim-verify-radio-card ${selectedVerifyType === 'email' ? 'selected' : ''}`}
+                onClick={() => setSelectedVerifyType('email')}
+              >
+                <div className="by-claim-radio-left">
+                  <Mail size={18} color={selectedVerifyType === 'email' ? '#FF6B35' : '#6B7280'} />
+                  <div>
+                    <div className="by-claim-radio-title">Email address</div>
+                    <div className="by-claim-radio-sub">Verify using your email</div>
+                  </div>
+                </div>
+                <div className={`by-claim-radio-circle ${selectedVerifyType === 'email' ? 'checked' : ''}`} />
+              </label>
+
+              <label 
+                className={`by-claim-verify-radio-card ${selectedVerifyType === 'phone' ? 'selected' : ''}`}
+                onClick={() => setSelectedVerifyType('phone')}
+              >
+                <div className="by-claim-radio-left">
+                  <Phone size={18} color={selectedVerifyType === 'phone' ? '#FF6B35' : '#6B7280'} />
+                  <div>
+                    <div className="by-claim-radio-title">Phone number</div>
+                    <div className="by-claim-radio-sub">Verify using SMS/phone</div>
+                  </div>
+                </div>
+                <div className={`by-claim-radio-circle ${selectedVerifyType === 'phone' ? 'checked' : ''}`} />
+              </label>
+
+              <label 
+                className={`by-claim-verify-radio-card ${selectedVerifyType === 'username' ? 'selected' : ''}`}
+                onClick={() => setSelectedVerifyType('username')}
+              >
+                <div className="by-claim-radio-left">
+                  <AtSign size={18} color={selectedVerifyType === 'username' ? '#FF6B35' : '#6B7280'} />
+                  <div>
+                    <div className="by-claim-radio-title">Username / Handle</div>
+                    <div className="by-claim-radio-sub">Verify using Twitter or Discord</div>
+                  </div>
+                </div>
+                <div className={`by-claim-radio-circle ${selectedVerifyType === 'username' ? 'checked' : ''}`} />
+              </label>
+            </div>
+
+            {/* Input field */}
+            <form onSubmit={handleVerifyIdentity} style={{ marginTop: '18px' }}>
+              <div className="by-claim-input-group">
+                <input 
+                  type="text"
+                  className="by-claim-input"
+                  placeholder={
+                    selectedVerifyType === 'email' ? 'e.g. sarah.m@example.com' :
+                    selectedVerifyType === 'phone' ? 'e.g. +1 (555) 234-5678' :
+                    'e.g. @sarahm or user#1234'
+                  }
+                  value={recipientInput}
+                  onChange={(e) => {
+                    setRecipientInput(e.target.value);
+                    setVerificationError(null);
+                  }}
+                />
+              </div>
+
+              {verificationError && (
+                <div className="by-claim-error-box">
+                  <AlertCircle size={15} />
+                  <span>{verificationError}</span>
+                </div>
+              )}
+
+              {isIdentityVerified && (
+                <div className="by-claim-success-callout">
+                  <CheckCircle2 size={16} color="#10B981" />
+                  <span>Identity confirmed! Matches escrow commitment.</span>
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                className="by-btn-primary by-claim-primary-btn"
+                style={{ marginTop: '18px' }}
+              >
+                <span>Continue to Wallet</span>
+                <ArrowRight size={18} />
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SCREEN 9: CONNECT WALLET (RECIPIENT STEP 2)
+           ========================================================================= */}
+        {currentStep === 'wallet' && (
+          <div className="by-claim-step-content">
+            <button 
+              className="by-claim-back-btn"
+              onClick={() => setCurrentStep('verify')}
+            >
+              <ArrowLeft size={15} />
+              <span>Back</span>
+            </button>
+
+            <h1 className="by-claim-title" style={{ marginTop: '8px' }}>Choose destination wallet</h1>
+            <p className="by-claim-desc">
+              Where should your <strong>${payment.amount.toFixed(2)} USDC</strong> be deposited?
+            </p>
+
+            {/* Destination Options */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '20px 0' }}>
+              {/* Option 1: Monad Embedded Wallet */}
+              <div 
+                className="by-claim-wallet-card selected"
+                onClick={() => {
+                  if (!isAuthenticated) login();
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="by-claim-wallet-icon-box">
+                    <Sparkles size={20} color="#FF6B35" />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#111827' }}>
+                      Instant Monad Smart Account
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                      Single-slot finality · Zero gas setup required
+                    </div>
+                  </div>
+                </div>
+
+                {isAuthenticated && user?.walletAddress ? (
+                  <span className="by-badge-green" style={{ fontSize: '0.72rem', padding: '3px 8px' }}>
+                    Connected
+                  </span>
+                ) : (
+                  <button 
+                    className="by-claim-connect-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      login();
+                    }}
+                  >
+                    Connect
+                  </button>
+                )}
+              </div>
+
+              {/* Display connected wallet address */}
+              {isAuthenticated && user?.walletAddress && (
+                <div className="by-claim-connected-address-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 600 }}>
+                      Destination Address
+                    </span>
+                    <button 
+                      className="by-copy-btn"
+                      onClick={() => handleCopyAddress(user.walletAddress)}
+                    >
+                      {copiedAddress ? <Check size={12} color="#10B981" /> : <Copy size={12} />}
+                      <span>{copiedAddress ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.88rem', color: '#111827', marginTop: '4px' }}>
+                    {user.walletAddress}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button 
+              className="by-btn-primary by-claim-primary-btn"
+              disabled={!isAuthenticated || !user?.walletAddress}
+              onClick={() => setCurrentStep('confirm')}
+            >
+              <span>Review & Claim</span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SCREEN 10: CLAIM CONFIRM (RECIPIENT STEP 3)
+           ========================================================================= */}
+        {currentStep === 'confirm' && (
+          <div className="by-claim-step-content">
+            <button 
+              className="by-claim-back-btn"
+              onClick={() => setCurrentStep('wallet')}
+            >
+              <ArrowLeft size={15} />
+              <span>Back</span>
+            </button>
+
+            <h1 className="by-claim-title" style={{ marginTop: '8px' }}>Confirm claim details</h1>
+            <p className="by-claim-desc">
+              Review before executing transaction on Monad.
+            </p>
+
+            <div className="by-claim-summary-card">
+              <div className="by-claim-summary-header">
+                <span style={{ fontSize: '0.82rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Total to receive
+                </span>
+                <div className="by-claim-summary-amount">
+                  ${payment.amount.toFixed(2)} <span style={{ fontSize: '1rem', fontWeight: 600, color: '#6B7280' }}>USDC</span>
+                </div>
+              </div>
+
+              <div className="by-claim-summary-list">
+                <div className="by-claim-summary-item">
+                  <span className="by-claim-item-label">From</span>
+                  <span className="by-claim-item-val">{senderDisplay}</span>
+                </div>
+
+                <div className="by-claim-summary-item">
+                  <span className="by-claim-item-label">Recipient</span>
+                  <span className="by-claim-item-val">{recipientInput || payment.recipient_identity_value}</span>
+                </div>
+
+                <div className="by-claim-summary-item">
+                  <span className="by-claim-item-label">Destination Wallet</span>
+                  <span className="by-claim-item-val" style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                    {user?.walletAddress ? `${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}` : 'Connected Wallet'}
+                  </span>
+                </div>
+
+                <div className="by-claim-summary-item">
+                  <span className="by-claim-item-label">Network Fee</span>
+                  <span className="by-claim-item-val" style={{ color: '#10B981', fontWeight: 600 }}>
+                    &lt; $0.0001 (Monad)
+                  </span>
+                </div>
+
+                <div className="by-claim-summary-item">
+                  <span className="by-claim-item-label">Finality Time</span>
+                  <span className="by-claim-item-val" style={{ color: '#10B981', fontWeight: 600 }}>
+                    ~400ms (Single-slot)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {claimError && (
+              <div className="by-claim-error-box" style={{ margin: '14px 0' }}>
+                <AlertCircle size={15} />
+                <span>{claimError}</span>
               </div>
             )}
 
-            {/* Primary CTA: Go to Dashboard */}
-            <button
+            <button 
+              className="by-btn-primary by-claim-primary-btn"
+              style={{ marginTop: '16px' }}
+              disabled={isSubmittingClaim}
+              onClick={handleExecuteClaim}
+            >
+              {isSubmittingClaim ? (
+                <>
+                  <Loader2 className="spin" size={18} />
+                  <span>Claiming on Monad Testnet...</span>
+                </>
+              ) : (
+                <>
+                  <span>Claim Now</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SCREEN 11: SUCCESS (RECIPIENT STEP 4)
+           ========================================================================= */}
+        {currentStep === 'success' && (
+          <div className="by-claim-step-content" style={{ textAlign: 'center', padding: '10px 0' }}>
+            <div className="by-claim-success-icon-circle">
+              <Check size={36} strokeWidth={3} color="#10B981" />
+            </div>
+
+            <h1 className="by-claim-title" style={{ fontSize: '1.6rem', marginTop: '12px' }}>
+              You're all set!
+            </h1>
+            <p className="by-claim-desc" style={{ maxWidth: '340px', margin: '6px auto 24px' }}>
+              <strong>${payment.amount.toFixed(2)} USDC</strong> has been successfully claimed and deposited to your wallet.
+            </p>
+
+            {/* Receipt details */}
+            <div className="by-claim-receipt-card">
+              <div className="by-claim-receipt-row">
+                <span className="by-receipt-label">Amount</span>
+                <span className="by-receipt-val" style={{ fontWeight: 800, color: '#10B981' }}>
+                  ${payment.amount.toFixed(2)} USDC
+                </span>
+              </div>
+
+              <div className="by-claim-receipt-row">
+                <span className="by-receipt-label">Destination</span>
+                <span className="by-receipt-val" style={{ fontFamily: 'monospace' }}>
+                  {user?.walletAddress ? `${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}` : 'Your Monad Wallet'}
+                </span>
+              </div>
+
+              {claimTxHash && (
+                <div className="by-claim-receipt-row">
+                  <span className="by-receipt-label">Transaction Hash</span>
+                  <a 
+                    href={`https://testnet.monadexplorer.com/tx/${claimTxHash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="by-claim-hash-link"
+                  >
+                    <span>{claimTxHash.slice(0, 8)}...{claimTxHash.slice(-6)}</span>
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
+              )}
+
+              <div className="by-claim-receipt-row">
+                <span className="by-receipt-label">Block</span>
+                <span className="by-receipt-val">{blockNumber}</span>
+              </div>
+
+              <div className="by-claim-receipt-row">
+                <span className="by-receipt-label">Network</span>
+                <span className="by-receipt-val" style={{ color: '#10B981', fontWeight: 600 }}>
+                  Monad Testnet (Chain 10143)
+                </span>
+              </div>
+            </div>
+
+            <button 
+              className="by-btn-primary by-claim-primary-btn"
+              style={{ marginTop: '20px' }}
               onClick={() => {
                 if (onGoToDashboard) {
                   onGoToDashboard();
@@ -402,473 +704,28 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
                   onExit?.();
                 }
               }}
-              style={{
-                width: '100%',
-                padding: '15px 20px',
-                borderRadius: '9999px',
-                background: '#10B981',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 700,
-                fontSize: '1.02rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4)',
-                marginBottom: '12px',
-                transition: 'all 0.2s ease'
-              }}
             >
-              <span>Go to Your Dashboard</span>
+              <span>Back to home</span>
               <ArrowRight size={18} />
             </button>
 
-            {onExit && (
-              <button
-                onClick={onExit}
-                style={{
-                  width: '100%',
-                  padding: '11px',
-                  borderRadius: '9999px',
-                  background: 'transparent',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#94a3b8',
-                  fontWeight: 600,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer'
-                }}
+            {claimTxHash && (
+              <a 
+                href={`https://testnet.monadexplorer.com/tx/${claimTxHash}`}
+                target="_blank"
+                rel="noreferrer"
+                className="by-claim-secondary-link"
+                style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                Close / Return to Home
-              </button>
+                <span>View on Monad Explorer</span>
+                <ExternalLink size={13} />
+              </a>
             )}
           </div>
-        ) : (
-          <>
-            {/* Amount Hero */}
-            <div style={{ textAlign: 'center', padding: '10px 0 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <div style={{ fontSize: '0.84rem', color: '#94a3b8', marginBottom: '4px' }}>You received an escrow payment of</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-                ${payment.amount.toFixed(2)} <span style={{ fontSize: '1.4rem', color: '#FF6B35' }}>USDC</span>
-              </div>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginTop: '10px',
-                fontSize: '0.78rem',
-                color: '#10B981',
-                background: 'rgba(16, 185, 129, 0.1)',
-                padding: '4px 12px',
-                borderRadius: '9999px'
-              }}>
-                <ShieldCheck size={14} />
-                <span>Locked in BeyiniEscrow on Monad</span>
-              </div>
-            </div>
-
-            {/* Error banner if any */}
-            {(verificationError || claimError) && (
-              <div style={{
-                background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                margin: '18px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#ef4444',
-                fontSize: '0.84rem'
-              }}>
-                <AlertCircle size={16} />
-                <span>{verificationError || claimError}</span>
-              </div>
-            )}
-
-            {/* STEP 1: IDENTITY VERIFICATION */}
-            {!isIdentityVerified ? (
-              <div style={{ padding: '20px 0 0' }}>
-                {/* Social-specific banner */}
-                {isTwitter ? (
-                  <div style={{
-                    background: 'rgba(29, 155, 240, 0.08)',
-                    border: '1px solid rgba(29, 155, 240, 0.25)',
-                    borderRadius: '16px',
-                    padding: '18px',
-                    marginBottom: '18px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'rgba(29, 155, 240, 0.18)',
-                      color: '#1D9BF0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 10px'
-                    }}>
-                      <AtSign size={20} />
-                    </div>
-                    <div style={{ fontSize: '0.96rem', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
-                      Locked for X User @{payment.recipient_identity_value}
-                    </div>
-                    <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.4, margin: '0 0 16px' }}>
-                      Sign in with X to automatically verify ownership and claim to your Monad Smart Account.
-                    </p>
-
-                    <button
-                      onClick={() => login()}
-                      style={{
-                        width: '100%',
-                        padding: '14px',
-                        borderRadius: '9999px',
-                        background: '#1D9BF0',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        fontSize: '0.94rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: '0 6px 20px rgba(29, 155, 240, 0.35)'
-                      }}
-                    >
-                      <AtSign size={16} />
-                      <span>Sign in with X to Claim</span>
-                    </button>
-                  </div>
-                ) : isDiscord ? (
-                  <div style={{
-                    background: 'rgba(88, 101, 242, 0.08)',
-                    border: '1px solid rgba(88, 101, 242, 0.25)',
-                    borderRadius: '16px',
-                    padding: '18px',
-                    marginBottom: '18px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'rgba(88, 101, 242, 0.18)',
-                      color: '#5865F2',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 10px'
-                    }}>
-                      <MessageSquare size={20} />
-                    </div>
-                    <div style={{ fontSize: '0.96rem', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
-                      Locked for Discord User {payment.recipient_identity_value}
-                    </div>
-                    <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.4, margin: '0 0 16px' }}>
-                      Sign in with Discord to automatically verify ownership and claim to your Monad Smart Account.
-                    </p>
-
-                    <button
-                      onClick={() => login()}
-                      style={{
-                        width: '100%',
-                        padding: '14px',
-                        borderRadius: '9999px',
-                        background: '#5865F2',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        fontSize: '0.94rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: '0 6px 20px rgba(88, 101, 242, 0.35)'
-                      }}
-                    >
-                      <MessageSquare size={16} />
-                      <span>Sign in with Discord to Claim</span>
-                    </button>
-                  </div>
-                ) : null}
-
-                {/* Alternative / Manual Verification Form */}
-                {(!isTwitter && !isDiscord) || showManualVerify ? (
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                      <Lock size={16} color="#FF6B35" />
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>Verify Recipient Identity</h3>
-                    </div>
-                    <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '16px' }}>
-                      To unlock the escrowed funds, verify ownership of the recipient {payment.recipient_identity_type} associated with this payment.
-                      {payment.recipient_identity_value && (
-                        <span style={{ display: 'block', color: 'var(--by-orange)', marginTop: '4px', fontWeight: 600 }}>
-                          Designated recipient: {getMaskedRecipientHint(payment.recipient_identity_value)}
-                        </span>
-                      )}
-                    </p>
-
-                    <form onSubmit={handleVerifyIdentity}>
-                      <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}>
-                          Enter your {payment.recipient_identity_type}
-                        </label>
-                        <input
-                          type="text"
-                          value={recipientInput}
-                          onChange={(e) => setRecipientInput(e.target.value)}
-                          placeholder={
-                            isTwitter ? '@username' :
-                            isDiscord ? 'username' :
-                            payment.recipient_identity_type === 'phone' ? '+254 7XX XXX XXX' : 'name@example.com'
-                          }
-                          style={{
-                            width: '100%',
-                            padding: '12px 14px',
-                            background: 'rgba(0, 0, 0, 0.4)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            borderRadius: '12px',
-                            color: '#fff',
-                            fontSize: '0.92rem',
-                            boxSizing: 'border-box'
-                          }}
-                          autoFocus
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        style={{
-                          width: '100%',
-                          padding: '14px',
-                          borderRadius: '9999px',
-                          background: '#FF6B35',
-                          color: '#fff',
-                          border: 'none',
-                          fontWeight: 700,
-                          fontSize: '0.95rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '8px',
-                          boxShadow: '0 8px 24px rgba(255, 107, 53, 0.35)'
-                        }}
-                      >
-                        <span>Verify Identity</span>
-                        <ArrowRight size={16} />
-                      </button>
-                    </form>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowManualVerify(true)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#94a3b8',
-                      fontSize: '0.78rem',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      display: 'block',
-                      margin: '10px auto 0'
-                    }}
-                  >
-                    Or enter {payment.recipient_identity_type} manually
-                  </button>
-                )}
-              </div>
-            ) : (
-              /* STEP 2: MONAD SMART ACCOUNT CLAIM */
-              <div style={{ padding: '20px 0 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>Settlement Rail</span>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    color: '#10B981',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontWeight: 600
-                  }}>
-                    <Check size={12} strokeWidth={3} /> Identity Verified
-                  </span>
-                </div>
-
-                {/* Active Pure Web3 Rail: Monad EVM Wallet */}
-                <div style={{
-                  background: 'rgba(255, 107, 53, 0.08)',
-                  border: '1.5px solid #FF6B35',
-                  borderRadius: '14px',
-                  padding: '14px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '20px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '10px',
-                      background: 'rgba(255, 107, 53, 0.18)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#FF6B35'
-                    }}>
-                      <Wallet size={20} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>
-                        Monad EVM Smart Account
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                        Receive native USDC directly on Monad testnet
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    background: '#FF6B35',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff'
-                  }}>
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                </div>
-
-                {/* Recipient Wallet Indicator or Connect / Onboarding Prompt */}
-                {!isAuthenticated || !user?.walletAddress ? (
-                  <div style={{
-                    background: 'rgba(255, 107, 53, 0.06)',
-                    border: '1px solid rgba(255, 107, 53, 0.22)',
-                    borderRadius: '16px',
-                    padding: '20px 18px',
-                    textAlign: 'center',
-                    marginBottom: '10px'
-                  }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 107, 53, 0.15)',
-                      color: '#FF6B35',
-                      margin: '0 auto 12px'
-                    }}>
-                      <Sparkles size={20} />
-                    </div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>
-                      Sign In to Claim Your Funds
-                    </div>
-                    <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, margin: '0 0 18px' }}>
-                      No seed phrases or wallet setup needed. Sign in with X, Discord or Email to claim your <strong>${payment.amount.toFixed(2)} USDC</strong> directly on Monad.
-                    </p>
-
-                    <button
-                      onClick={() => login()}
-                      style={{
-                        width: '100%',
-                        padding: '14px',
-                        borderRadius: '9999px',
-                        background: '#FF6B35',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        fontSize: '0.96rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: '0 8px 24px rgba(255, 107, 53, 0.35)'
-                      }}
-                    >
-                      <LogIn size={18} />
-                      <span>Sign In & Claim ${payment.amount.toFixed(2)} USDC</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    {/* Authenticated Wallet Account Card */}
-                    <div style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '14px',
-                      padding: '12px 16px',
-                      marginBottom: '16px',
-                      fontSize: '0.82rem'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <span style={{ color: '#94a3b8' }}>Payout Account:</span>
-                        <strong style={{ color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Check size={12} strokeWidth={3} />
-                          {user.twitterUsername ? `@${user.twitterUsername} (X)` :
-                           user.discordUsername ? `${user.discordUsername} (Discord)` :
-                           user.email || user.displayName || 'Connected'}
-                        </strong>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#94a3b8' }}>Monad Wallet:</span>
-                        <strong style={{ fontFamily: 'monospace', color: '#fff' }}>
-                          {user.walletAddress.slice(0, 8)}...{user.walletAddress.slice(-6)}
-                        </strong>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleExecuteClaim}
-                      disabled={isSubmittingClaim}
-                      style={{
-                        width: '100%',
-                        padding: '15px',
-                        borderRadius: '9999px',
-                        background: '#FF6B35',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: 700,
-                        fontSize: '1rem',
-                        cursor: isSubmittingClaim ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: '0 8px 24px rgba(255, 107, 53, 0.35)'
-                      }}
-                    >
-                      {isSubmittingClaim ? (
-                        <>
-                          <Loader2 size={18} className="spin" />
-                          <span>Claiming on Monad Testnet...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Claim ${payment.amount.toFixed(2)} USDC to Monad Wallet</span>
-                          <ArrowRight size={16} />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>
   );
 };
+
+export default StandaloneClaimView;

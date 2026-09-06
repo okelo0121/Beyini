@@ -4,7 +4,8 @@ import type { AppTab } from './components/Sidebar';
 import { Header } from './components/Header';
 import { MobileHeader } from './components/MobileHeader';
 import { MobileNav } from './components/MobileNav';
-import { SendView } from './views/SendView';
+import { DashboardView } from './views/DashboardView';
+import { SendFlowView } from './views/SendFlowView';
 import { ActivityView } from './views/ActivityView';
 import { RecipientsView } from './views/RecipientsView';
 import { ProfileView } from './views/ProfileView';
@@ -30,7 +31,7 @@ export const BeyiniApp: React.FC<BeyiniAppProps> = ({
 }) => {
   const { user, isAuthenticated, login } = useBeyiniAuth();
   const { balance: liveBalance, refetch } = useMonadUSDC();
-  const [currentTab, setCurrentTab] = useState<AppTab>(initialTab || 'send');
+  const [currentTab, setCurrentTab] = useState<AppTab>(initialTab || 'home');
   
   // Real user recipients and transactions stored per user session
   const [recipients, setRecipients] = useState<Recipient[]>(() => {
@@ -245,7 +246,7 @@ export const BeyiniApp: React.FC<BeyiniAppProps> = ({
 
   const handleSelectRecipient = (recipient: Recipient) => {
     setSelectedRecipient(recipient);
-    setIsPaymentModalOpen(true);
+    setCurrentTab('send');
   };
 
   const handlePaymentCompleted = (newTx: Transaction) => {
@@ -364,18 +365,36 @@ export const BeyiniApp: React.FC<BeyiniAppProps> = ({
 
         {/* Main Content Viewport */}
         <main className="by-content-body">
+          {currentTab === 'home' && (
+            <DashboardView 
+              userName={activeUser.name || 'Alex'}
+              transactions={transactions}
+              onStartSend={() => {
+                setSelectedRecipient(null);
+                setCurrentTab('send');
+              }}
+              onViewAllActivity={() => setCurrentTab('activity')}
+              onSelectTransaction={(_tx) => setCurrentTab('activity')}
+            />
+          )}
+
           {currentTab === 'send' && (
-            <SendView 
+            <SendFlowView 
               recipients={recipients}
-              onSelectRecipient={handleSelectRecipient}
-              onViewAllRecipients={() => setCurrentTab('recipients')}
+              initialRecipient={selectedRecipient}
+              userWalletAddress={activeUser.walletAddress}
+              onExitToDashboard={() => setCurrentTab('home')}
+              onPaymentSuccess={handlePaymentCompleted}
             />
           )}
 
           {currentTab === 'activity' && (
             <ActivityView 
               transactions={transactions}
-              onOpenSend={() => setCurrentTab('send')}
+              onOpenSend={() => {
+                setSelectedRecipient(null);
+                setCurrentTab('send');
+              }}
             />
           )}
 
