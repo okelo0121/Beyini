@@ -134,6 +134,10 @@
     display: none;
   }
 
+  .btn-connect-wallet {
+    display: none;
+  }
+
   .mobile-menu-btn {
     display: flex;
     align-items: center;
