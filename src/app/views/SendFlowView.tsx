@@ -11,12 +11,15 @@ import {
   Sparkles, 
   Info, 
   Lock,
-  Loader2
+  Loader2,
+  Mail,
+  Send
 } from 'lucide-react';
 import type { Recipient, Transaction } from '../data/beyiniData';
 import { IdentityService } from '../../services/IdentityService';
 import { StorageService, type PaymentRecord } from '../../services/StorageService';
 import { ClaimTokenService } from '../../services/ClaimTokenService';
+import { EmailNotificationService } from '../../services/EmailNotificationService';
 import { useMonadEscrow } from '../../blockchain/useMonadEscrow';
 import { useMonadUSDC } from '../../blockchain/useMonadUSDC';
 import { MONAD_USDC_ADDRESS } from '../../auth/privyConfig';
@@ -53,6 +56,9 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
   const [claimLink, setClaimLink] = useState<string>('');
   const [copiedClaimLink, setCopiedClaimLink] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [emailNotice, setEmailNotice] = useState<{ sent: boolean; email?: string; warning?: string } | null>(null);
+  const [manualEmailInput, setManualEmailInput] = useState<string>('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const { balance: availableBalance, refetch: refetchBalance } = useMonadUSDC();
   const { depositToEscrow, approveUSDC, checkAllowance } = useMonadEscrow();
@@ -222,6 +228,29 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
       // 5. Persist record to storage
       await StorageService.savePayment(paymentRecord);
 
+      // 6. Automatically dispatch transactional email via Resend if email is available
+      const recipientEmail = selectedRecipient.email || (identityType === 'email' ? normalized : undefined);
+      if (recipientEmail && recipientEmail.includes('@')) {
+        setIsSendingEmail(true);
+        EmailNotificationService.sendClaimInvitation({
+          to: recipientEmail,
+          amount: numAmount,
+          senderName: userWalletAddress ? `${userWalletAddress.slice(0, 6)}...${userWalletAddress.slice(-4)}` : 'A friend',
+          claimUrl: generatedLink,
+          txHash,
+        }).then((res) => {
+          setIsSendingEmail(false);
+          if (res.success) {
+            setEmailNotice({ sent: true, email: recipientEmail });
+          } else {
+            setEmailNotice({ sent: false, email: recipientEmail, warning: res.warning || res.error });
+          }
+        }).catch((err) => {
+          setIsSendingEmail(false);
+          console.warn('Auto email dispatch failed:', err);
+        });
+      }
+
       // Refetch balance after deposit
       refetchBalance().catch(() => {});
 
@@ -257,6 +286,31 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
     } finally {
       setIsSubmitting(false);
       setSubmitStatusText('');
+    }
+  };
+
+  const handleSendManualEmail = async (overrideEmail?: string) => {
+    const targetEmail = overrideEmail || manualEmailInput.trim() || selectedRecipient?.email || '';
+    if (!targetEmail || !targetEmail.includes('@') || !claimLink) return;
+    setIsSendingEmail(true);
+    try {
+      const res = await EmailNotificationService.sendClaimInvitation({
+        to: targetEmail,
+        amount: parseFloat(amount) || 10,
+        senderName: userWalletAddress ? `${userWalletAddress.slice(0, 6)}...${userWalletAddress.slice(-4)}` : 'A friend',
+        claimUrl: claimLink,
+        txHash: completedTxHash,
+      });
+      if (res.success) {
+        setEmailNotice({ sent: true, email: targetEmail });
+        setManualEmailInput('');
+      } else {
+        setEmailNotice({ sent: false, email: targetEmail, warning: res.warning || res.error });
+      }
+    } catch (e: any) {
+      setEmailNotice({ sent: false, email: targetEmail, warning: e?.message });
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -753,9 +807,33 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
           </div>
 
           {/* Recipient Notification Box */}
-          <div className="by-success-notify-callout">
-            <Lock size={15} className="by-notify-icon" />
-            <span>{selectedRecipient.name} will receive a notification shortly and can claim the funds.</span>
+          <div className="by-success-notify-callout" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+              <Lock size={15} className="by-notify-icon" />
+              <span>{selectedRecipient.name} will receive a notification shortly and can claim the funds.</span>
+            </div>
+
+            {/* Resend Real-Time Status */}
+            {isSendingEmail && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#836EF9', marginTop: '4px' }}>
+                <Loader2 size={13} className="spin" />
+                <span>Sending claim notification email via Resend...</span>
+              </div>
+            )}
+
+            {emailNotice?.sent && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#10B981', marginTop: '4px' }}>
+                <CheckCircle2 size={14} />
+                <span>Claim invitation dispatched to <strong>{emailNotice.email}</strong> via Resend!</span>
+              </div>
+            )}
+
+            {emailNotice?.warning && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '0.78rem', color: '#F59E0B', marginTop: '4px' }}>
+                <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span>{emailNotice.warning}</span>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -810,7 +888,49 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            {/* Interactive Resend Dispatcher in Modal */}
+            <div style={{ marginTop: '20px', padding: '16px', background: 'rgba(131, 110, 249, 0.05)', borderRadius: '12px', border: '1px solid rgba(131, 110, 249, 0.18)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <Mail size={16} color="#836EF9" />
+                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#111827' }}>Send Claim Link via Resend Email</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.4 }}>
+                Deliver the self-contained claim link directly to any email inbox with an automated notification.
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input 
+                  type="email" 
+                  placeholder={selectedRecipient?.email || "recipient@example.com"}
+                  value={manualEmailInput} 
+                  onChange={(e) => setManualEmailInput(e.target.value)}
+                  className="by-claim-link-input"
+                  style={{ fontSize: '0.85rem' }}
+                />
+                <button 
+                  type="button" 
+                  className="by-btn-primary"
+                  style={{ padding: '0 16px', borderRadius: '10px', height: '42px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', background: '#836EF9' }}
+                  onClick={() => handleSendManualEmail()}
+                  disabled={isSendingEmail}
+                >
+                  {isSendingEmail ? <Loader2 size={14} className="spin" /> : <Send size={14} />}
+                  <span>{isSendingEmail ? 'Sending...' : 'Send'}</span>
+                </button>
+              </div>
+
+              {emailNotice?.sent && (
+                <div style={{ marginTop: '10px', fontSize: '0.78rem', color: '#10B981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={13} /> Email dispatched successfully via Resend to <strong>{emailNotice.email}</strong>
+                </div>
+              )}
+              {emailNotice?.warning && (
+                <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#D97706', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                  <Info size={13} style={{ flexShrink: 0, marginTop: '2px' }} /> <span>{emailNotice.warning}</span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <a 
                 href={claimLink}
                 target="_blank"

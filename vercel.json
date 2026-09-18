@@ -5,6 +5,10 @@
       "destination": "/api/faucet"
     },
     {
+      "source": "/api/notify",
+      "destination": "/api/notify"
+    },
+    {
       "source": "/api/payments/(.*)",
       "destination": "/api/payments?id=$1"
     },

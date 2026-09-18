@@ -1,0 +1,17 @@
+{
+  "name": "beyini-indexer",
+  "version": "1.0.0",
+  "description": "Envio HyperIndex for Beyini Payment Routing Protocol on Monad Testnet",
+  "scripts": {
+    "codegen": "envio codegen",
+    "dev": "envio dev",
+    "build": "envio build",
+    "start": "envio start"
+  },
+  "dependencies": {
+    "envio": "^2.36.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

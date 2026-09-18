@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets, useCreateWallet } from '@privy-io/react-auth';
 import type { BeyiniUser } from './types';
+import { EmailNotificationService } from '../services/EmailNotificationService';
 
 export const useBeyiniAuth = () => {
   const {
@@ -110,6 +111,29 @@ export const useBeyiniAuth = () => {
     network: 'monad-testnet',
     balanceUSDC: 0.00,
   } : null;
+
+  // Send welcome email on registration / first login with email
+  useEffect(() => {
+    if (!ready || !authenticated || !user || !user.email) return;
+
+    const welcomeKey = `beyini_welcome_sent_${user.email.toLowerCase()}`;
+    if (!localStorage.getItem(welcomeKey)) {
+      localStorage.setItem(welcomeKey, 'true');
+      EmailNotificationService.sendWelcomeNotification({
+        to: user.email,
+        walletAddress: user.walletAddress || 'Provisioning Monad Smart Account...',
+        name: user.displayName,
+      }).then((res) => {
+        if (res.success) {
+          console.log(`[Beyini] Welcome email sent via Resend to ${user.email}`);
+        } else if (res.warning) {
+          console.info(`[Beyini] Welcome email notice: ${res.warning}`);
+        }
+      }).catch((e) => {
+        console.warn('[Beyini] Could not dispatch welcome email:', e);
+      });
+    }
+  }, [ready, authenticated, user?.email, user?.walletAddress, user?.displayName]);
 
   return {
     ready,

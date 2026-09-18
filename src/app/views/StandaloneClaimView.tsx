@@ -17,6 +17,7 @@ import { useBeyiniAuth } from '../../auth/useBeyiniAuth';
 import { useMonadEscrow } from '../../blockchain/useMonadEscrow';
 import { IdentityService } from '../../services/IdentityService';
 import { StorageService, type PaymentRecord } from '../../services/StorageService';
+import { EmailNotificationService } from '../../services/EmailNotificationService';
 
 interface StandaloneClaimViewProps {
   token: string;
@@ -51,6 +52,7 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
   const [claimError, setClaimError] = useState<string | null>(null);
   const [blockNumber, setBlockNumber] = useState<string>('#59932820');
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [claimEmailNotice, setClaimEmailNotice] = useState<string | null>(null);
 
   // Load payment record on mount
   useEffect(() => {
@@ -196,6 +198,22 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
 
       // Persist completed status
       await StorageService.updateStatus(token, 'COMPLETED', result.txHash, destinationAddress);
+
+      // Dispatch claim confirmation email via Resend if email available
+      const claimEmail = user?.email || (payment.recipient_identity_type === 'email' ? candidateValue : undefined);
+      if (claimEmail && claimEmail.includes('@')) {
+        EmailNotificationService.sendClaimConfirmation({
+          to: claimEmail,
+          amount: payment.amount,
+          claimTxHash: result.txHash,
+          destinationAddress,
+        }).then((res) => {
+          if (res.success) {
+            setClaimEmailNotice(`Receipt sent to ${claimEmail}`);
+          }
+        }).catch(() => {});
+      }
+
       setCurrentStep('success');
     } catch (err: any) {
       console.error('Claim transaction error:', err);
@@ -691,6 +709,15 @@ export const StandaloneClaimView: React.FC<StandaloneClaimViewProps> = ({
                   Monad Testnet (Chain 10143)
                 </span>
               </div>
+
+              {claimEmailNotice && (
+                <div className="by-claim-receipt-row" style={{ borderTop: '1px dashed #E5E7EB', paddingTop: '8px' }}>
+                  <span className="by-receipt-label">Receipt</span>
+                  <span className="by-receipt-val" style={{ color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}>
+                    <CheckCircle2 size={13} /> {claimEmailNotice}
+                  </span>
+                </div>
+              )}
             </div>
 
             <button 
