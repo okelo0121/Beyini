@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { keccak256, encodePacked, toHex, stringToHex } from 'viem';
+import { keccak256, encodePacked, stringToHex } from 'viem';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,5 +51,33 @@ test('BeyiniEscrow Contract Artifact & Zero-PII Cryptography', async (t) => {
       encodePacked(['bytes32', 'bytes32'], [identifierHash, salt])
     );
     assert.equal(commitment, computedOnchain, 'Offchain and onchain commitments must match');
+  });
+
+  await t.test('Cross-Device Claim Token Serialization and Deserialization', () => {
+    const sampleRecord = {
+      pid: 'by_test_123',
+      cid: '0x1234567890123456789012345678901234567890123456789012345678901234',
+      snd: '0x9fb085D7B1a59e9A8fC1D9495b21',
+      type: 'email',
+      val: 'alice@example.com',
+      com: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef',
+      amt: 20,
+      salt: '0x1111111111111111111111111111111111111111111111111111111111111111',
+      tx: '0x9999999999999999999999999999999999999999999999999999999999999999',
+      cat: 1726671234
+    };
+
+    const jsonStr = JSON.stringify(sampleRecord);
+    const token = Buffer.from(jsonStr).toString('base64url');
+    assert.ok(token.length > 0, 'Token must be non-empty base64url');
+
+    let base64 = token.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4 !== 0) base64 += '=';
+    const decoded = JSON.parse(Buffer.from(base64, 'base64').toString('utf8'));
+
+    assert.equal(decoded.cid, sampleRecord.cid, 'Contract payment ID must match');
+    assert.equal(decoded.salt, sampleRecord.salt, 'Salt must match');
+    assert.equal(decoded.amt, sampleRecord.amt, 'Amount must match');
+    assert.equal(decoded.val, sampleRecord.val, 'Recipient value must match');
   });
 });

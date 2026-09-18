@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import type { Recipient, Transaction } from '../data/beyiniData';
 import { IdentityService } from '../../services/IdentityService';
-import { StorageService } from '../../services/StorageService';
+import { StorageService, type PaymentRecord } from '../../services/StorageService';
+import { ClaimTokenService } from '../../services/ClaimTokenService';
 import { useMonadEscrow } from '../../blockchain/useMonadEscrow';
 import { useMonadUSDC } from '../../blockchain/useMonadUSDC';
 import { MONAD_USDC_ADDRESS } from '../../auth/privyConfig';
@@ -198,13 +199,7 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
       setCompletedTxHash(txHash);
       setCompletedBlockNumber(`#${Math.floor(59930000 + Math.random() * 5000)}`);
 
-      // 4. Generate persistent claim link
-      const hostOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://beyini.paaco.xyz';
-      const generatedLink = `${hostOrigin}/claim/${paymentUUID}`;
-      setClaimLink(generatedLink);
-
-      // 5. Persist record to storage
-      await StorageService.savePayment({
+      const paymentRecord: PaymentRecord = {
         payment_id: paymentUUID,
         contract_payment_id: contractPaymentId,
         sender_address: userWalletAddress || '0x9fb085D7B1a59e9A8fC1D9495b21',
@@ -218,7 +213,14 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
         salt,
         status: 'SECURED',
         created_at: Math.floor(Date.now() / 1000)
-      });
+      };
+
+      // 4. Generate persistent self-contained cross-device claim link
+      const generatedLink = ClaimTokenService.buildClaimUrl(paymentRecord);
+      setClaimLink(generatedLink);
+
+      // 5. Persist record to storage
+      await StorageService.savePayment(paymentRecord);
 
       // Refetch balance after deposit
       refetchBalance().catch(() => {});

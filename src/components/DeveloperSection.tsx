@@ -3,12 +3,7 @@ import { SecurityStages } from './SecurityStages';
 import { ProjectModal } from './ProjectModal';
 import { showcaseProjectsData } from '../data/projects';
 import type { ProjectShowcase } from '../types/ecosystem';
-import {
-  StacksLogoIcon,
-  AlexDeFiLogo,
-  XverseWingLogo,
-  MetaWalletLogo
-} from '../assets/icons/Icons';
+import { Zap, Cpu, ShieldCheck, Globe } from 'lucide-react';
 import '../styles/developer.css';
 
 interface DeveloperSectionProps {
@@ -21,15 +16,15 @@ export const DeveloperSection: React.FC<DeveloperSectionProps> = ({ onStartStack
   const renderProjectIcon = (type: string) => {
     switch (type) {
       case 'stacks':
-        return <StacksLogoIcon size={56} />;
+        return <Zap size={48} color="#FF5500" />;
       case 'alex':
-        return <AlexDeFiLogo size={56} />;
+        return <Cpu size={48} color="#FF7733" />;
       case 'xverse':
-        return <XverseWingLogo size={56} />;
+        return <ShieldCheck size={48} color="#10B981" />;
       case 'meta':
-        return <MetaWalletLogo size={56} />;
+        return <Globe size={48} color="#00B4FF" />;
       default:
-        return <StacksLogoIcon size={56} />;
+        return <Zap size={48} color="#FF5500" />;
     }
   };
 

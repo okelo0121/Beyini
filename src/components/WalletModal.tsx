@@ -13,30 +13,30 @@ interface WalletModalProps {
 
 const WALLET_PROVIDERS: WalletProvider[] = [
   {
-    id: 'leather',
-    name: 'Leather (Hiro)',
-    description: 'The native wallet for Stacks & Bitcoin apps',
-    iconBg: '#FF5500',
+    id: 'metamask',
+    name: 'MetaMask',
+    description: 'The standard EVM wallet with Monad Testnet support',
+    iconBg: '#F6851B',
     recommended: true
   },
   {
-    id: 'xverse',
-    name: 'Xverse Wallet',
-    description: 'Chrome & Mobile wallet with Ordinals support',
-    iconBg: '#FF5722',
+    id: 'rabby',
+    name: 'Rabby Wallet',
+    description: 'Security-first browser wallet for Monad power users',
+    iconBg: '#8697FF',
     recommended: true
   },
   {
-    id: 'asigna',
-    name: 'Asigna Multisig',
-    description: 'Multi-signature Bitcoin, Ordinals, & Stacks treasury',
-    iconBg: '#10B981'
+    id: 'rainbow',
+    name: 'Rainbow Wallet',
+    description: 'Intuitive mobile & browser wallet with instant bridging',
+    iconBg: '#001E59'
   },
   {
-    id: 'unisat',
-    name: 'UniSat Wallet',
-    description: 'Open source browser extension wallet',
-    iconBg: '#FFC200'
+    id: 'coinbase',
+    name: 'Coinbase Wallet',
+    description: 'Smart wallet & EVM browser extension on Monad',
+    iconBg: '#0052FF'
   }
 ];
 
@@ -78,7 +78,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
             </div>
             <h4 style={{ fontSize: '1.35rem', marginBottom: '8px' }}>{connectedWallet}</h4>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>
-              STX Address: SP2Z...4K9Q &bull; Balance: 14,250 STX
+              Monad Address: 0x... &bull; Network: Monad Testnet (10,000 TPS)
             </p>
             <button 
               className="btn-primary" 
@@ -116,7 +116,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               ))}
             </div>
             <p className="modal-footer-note">
-              By connecting your wallet, you agree to CoinFusion's Terms of Service and Privacy Policy.
+              By connecting your wallet, you agree to Beyini's Terms of Service and Privacy Policy.
             </p>
           </>
         )}

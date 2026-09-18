@@ -52,7 +52,7 @@ export const privyConfig: PrivyClientConfig = {
   loginMethods: ['email', 'sms', 'google', 'twitter', 'discord', 'passkey', 'wallet'],
   embeddedWallets: {
     ethereum: {
-      createOnLogin: 'off',
+      createOnLogin: 'users-without-wallets',
     },
     showWalletUIs: false, // Seamless non-intrusive embedded signing
   },

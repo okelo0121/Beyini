@@ -1,10 +1,4 @@
-import React from 'react';
-import { ArrowRight, ChevronRight } from 'lucide-react';
-import {
-  PoXExchangeIcon,
-  LightningIcon,
-  BitcoinSymbolIcon
-} from '../assets/icons/Icons';
+import { ArrowRight, ChevronRight, Fingerprint, Zap, Wallet } from 'lucide-react';
 import '../styles/features.css';
 
 interface FeaturesGridProps {
@@ -14,25 +8,25 @@ interface FeaturesGridProps {
 export const FeaturesGrid: React.FC<FeaturesGridProps> = ({ onLearnMore }) => {
   const features = [
     {
-      id: 'pox',
+      id: 'identify',
       title: 'Identify',
-      description: 'Enter the person you want to pay. EMAIL, PHONE, OR USERNAME',
-      icon: <PoXExchangeIcon size={38} />,
-      learnText: 'Learn more about PoX'
+      description: 'Enter the person you want to pay: Email, Phone, X handle, or Discord.',
+      icon: <Fingerprint size={38} color="#FF6B35" />,
+      learnText: 'Learn about Zero-Address Routing'
     },
     {
-      id: 'nfts',
+      id: 'send',
       title: 'Send',
-      description: 'Send the payment without asking for wallet address',
-      icon: <LightningIcon size={40} />,
-      learnText: 'Explore Bitcoin NFTs'
+      description: 'Funds are secured in a non-custodial smart escrow with 1s Monad finality.',
+      icon: <Zap size={38} color="#10B981" />,
+      learnText: 'Explore Monad Parallel Escrow'
     },
     {
       id: 'receive',
       title: 'Receive',
-      description: 'The recipient chooses where the money goes. WALLET, MOBILE NUMBER, OR OTHER RAILS',
-      icon: <BitcoinSymbolIcon size={40} />,
-      learnText: 'Discover Recipient Choices'
+      description: 'Recipient verifies their identity and chooses how to receive: EVM Wallet, Bank, or Mobile Money.',
+      icon: <Wallet size={38} color="#3B82F6" />,
+      learnText: 'Discover Recipient Settlement Choices'
     }
   ];
 
@@ -76,14 +70,15 @@ export const FeaturesGrid: React.FC<FeaturesGridProps> = ({ onLearnMore }) => {
 
         <div className="features-footer-action">
           <a
-            href="#explore"
+            href="#features"
             className="see-all-features-link"
             onClick={(e) => {
               e.preventDefault();
-              alert('Displaying all 14+ Stacks network features, consensus specifications & developer APIs.');
+              const el = document.getElementById('features');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
           >
-            <span>See all features</span>
+            <span>Explore Monad Features</span>
             <ChevronRight size={20} />
           </a>
         </div>

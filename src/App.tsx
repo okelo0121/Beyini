@@ -25,11 +25,18 @@ export function App() {
       return hash.replace('#claim/', '').split('?')[0];
     }
     if (hash.startsWith('#claim?')) {
-      const params = new URLSearchParams(hash.replace('#claim?', ''));
-      return params.get('id') || params.get('token');
+      return hash.replace('#claim?', '');
     }
     const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get('claim') || searchParams.get('token');
+    if (searchParams.has('p')) {
+      return `p=${searchParams.get('p')}`;
+    }
+    if (searchParams.get('claim')) return searchParams.get('claim');
+    if (searchParams.get('token')) return searchParams.get('token');
+    if (searchParams.get('id') || searchParams.get('cid')) {
+      return window.location.search.substring(1);
+    }
+    return null;
   };
 
   const [claimToken, setClaimToken] = useState<string | null>(() => getClaimTokenFromUrl());

@@ -23,7 +23,7 @@ export class IdentityService {
     if (trimmed.includes('@') && trimmed.includes('.')) {
       return 'email';
     }
-    if (trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-\(\)]/g, ''))) {
+    if (trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-()]/g, ''))) {
       return 'phone';
     }
     return 'username';
@@ -59,8 +59,8 @@ export class IdentityService {
       return trimmed.trim();
     }
 
-    if (type === 'phone' || trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-\(\)]/g, ''))) {
-      return trimmed.replace(/[\s\-\(\)]/g, '');
+    if (type === 'phone' || trimmed.startsWith('+') || /^\d+$/.test(trimmed.replace(/[\s\-()]/g, ''))) {
+      return trimmed.replace(/[\s\-()]/g, '');
     }
 
     if (type === 'email') {

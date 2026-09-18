@@ -13,9 +13,9 @@ export const SecurityStages: React.FC = () => {
       <div className="security-main-capsule">
         <div className="security-lock-glow" />
         
-        {/* Floating Bitcoin Secure & Safe Badge */}
+        {/* Floating Monad Secure & Fast Badge */}
         <div className="security-capsule-badge">
-          <span>Bitcoin secure<br />and safe</span>
+          <span>Monad 10k TPS<br />1s Finality</span>
         </div>
 
         {/* Big White Security Padlock */}

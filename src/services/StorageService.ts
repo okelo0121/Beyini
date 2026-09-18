@@ -27,13 +27,26 @@ export interface PaymentRecord {
 
 const LOCAL_STORAGE_KEY = 'beyini_persisted_payments_v2';
 
+import { ClaimTokenService } from './ClaimTokenService';
+
 export class StorageService {
   /**
-   * Fetches payment by payment_id from backend API with localStorage fallback
+   * Fetches payment by payment_id or self-contained claim token from URL/API with localStorage fallback
    */
-  public static async getPayment(paymentId: string): Promise<PaymentRecord | null> {
+  public static async getPayment(paymentIdOrToken: string): Promise<PaymentRecord | null> {
+    // 0. First check if it's a self-contained encoded payload or query token
+    const decoded = ClaimTokenService.decodePayment(paymentIdOrToken);
+    if (decoded) {
+      // Cache decoded payment in local storage for future reference
+      const existing = this.getLocalPayments();
+      if (!existing.some((p) => p.payment_id === decoded.payment_id)) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([decoded, ...existing]));
+      }
+      return decoded;
+    }
+
     try {
-      const response = await fetch(`/api/payments/${encodeURIComponent(paymentId)}`);
+      const response = await fetch(`/api/payments/${encodeURIComponent(paymentIdOrToken)}`);
       if (response.ok) {
         const data = await response.json();
         if (data && data.payment_id) {
@@ -46,7 +59,7 @@ export class StorageService {
 
     // LocalStorage fallback
     const local = this.getLocalPayments();
-    return local.find((p) => p.payment_id.toLowerCase() === paymentId.toLowerCase()) || null;
+    return local.find((p) => p.payment_id.toLowerCase() === paymentIdOrToken.toLowerCase()) || null;
   }
 
   /**

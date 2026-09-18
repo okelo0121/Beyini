@@ -9,7 +9,7 @@ function paymentsApiPlugin(): Plugin {
   return {
     name: 'beyini-payments-api',
     configureServer(server) {
-      const dataDir = path.resolve(__dirname, 'scratch');
+      const dataDir = path.resolve(import.meta.dirname, 'scratch');
       const dataFile = path.join(dataDir, 'payments.json');
 
       const ensureFile = () => {
@@ -51,7 +51,7 @@ function paymentsApiPlugin(): Plugin {
                 return res.end(JSON.stringify({ error: 'Valid 0x address required' }));
               }
 
-              const envContent = fs.readFileSync(path.resolve(__dirname, '.env.local'), 'utf8');
+              const envContent = fs.readFileSync(path.resolve(import.meta.dirname, '.env.local'), 'utf8');
               const keyMatch = envContent.match(/MONAD_DEPLOYER_KEY=([a-fA-F0-9x]+)/);
               if (!keyMatch) {
                 res.statusCode = 500;
