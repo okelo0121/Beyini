@@ -12,7 +12,7 @@ export class NotificationService {
    */
   public static generateClaimUrl(paymentId: string, salt?: string): string {
     if (paymentId.startsWith('http')) return paymentId;
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://beyini.app';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://beyini.paaco.xyz';
     if (salt) {
       return `${origin}/#claim?id=${encodeURIComponent(paymentId)}&salt=${encodeURIComponent(salt)}`;
     }

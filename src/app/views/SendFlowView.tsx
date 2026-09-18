@@ -183,22 +183,21 @@ export const SendFlowView: React.FC<SendFlowViewProps> = ({
       const strAmount = amount.trim() || '10';
       const requiredUnits = parseUnits(strAmount, 6);
       if (userWalletAddress) {
-        setSubmitStatusText('Checking Monad USDC allowance...');
+        setSubmitStatusText('Verifying gas sponsorship & USDC allowance...');
         const currentAllowance = await checkAllowance(userWalletAddress as `0x${string}`);
         if (currentAllowance < requiredUnits) {
-          setSubmitStatusText('Approving USDC for BeyiniEscrow on Monad...');
-          await approveUSDC((numAmount * 2).toString()); // Approve sufficient headroom
+          await approveUSDC((numAmount * 2).toString(), setSubmitStatusText);
         }
       }
 
       // 3. Deposit into real Monad Escrow contract
-      setSubmitStatusText('Securing funds in BeyiniEscrow on Monad...');
       const durationSeconds = 30 * 24 * 3600; // 30 days expiry
       const depositResult = await depositToEscrow({
         paymentId: contractPaymentId,
         commitment,
         amountUSDC: strAmount,
-        durationSeconds
+        durationSeconds,
+        onStatusUpdate: setSubmitStatusText,
       });
 
       const txHash = depositResult.txHash;

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets, useCreateWallet } from '@privy-io/react-auth';
 import type { BeyiniUser } from './types';
 import { EmailNotificationService } from '../services/EmailNotificationService';
+import { GasSponsorshipService } from '../services/GasSponsorshipService';
 
 export const useBeyiniAuth = () => {
   const {
@@ -134,6 +135,12 @@ export const useBeyiniAuth = () => {
       });
     }
   }, [ready, authenticated, user?.email, user?.walletAddress, user?.displayName]);
+
+  // Auto-sponsor Monad gas in background upon authentication so user never needs to hold MON
+  useEffect(() => {
+    if (!ready || !authenticated || !walletAddress) return;
+    GasSponsorshipService.autoSponsorOnLogin(walletAddress);
+  }, [ready, authenticated, walletAddress]);
 
   return {
     ready,

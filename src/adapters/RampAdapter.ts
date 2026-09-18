@@ -82,7 +82,7 @@ export class RampAdapter {
       try {
         const widget = new RampInstantSDK({
           hostAppName: 'Beyini',
-          hostLogoUrl: 'https://beyini.app/assets/logo.png',
+          hostLogoUrl: 'https://beyini.paaco.xyz/assets/logo.png',
           hostApiKey: this.apiKey,
           flow: 'OFFRAMP',
           userAddress,

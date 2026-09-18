@@ -27,7 +27,7 @@ function generateEmailContent(payload: NotifyPayload): { subject: string; html: 
   if (payload.type === 'CLAIM_INVITATION') {
     const amountStr = typeof payload.amount === 'number' ? payload.amount.toFixed(2) : (payload.amount || '0.00');
     const sender = payload.senderName || 'Someone';
-    const claimUrl = payload.claimUrl || 'https://beyini.app';
+    const claimUrl = payload.claimUrl || 'https://beyini.paaco.xyz';
     const explorerUrl = payload.txHash ? `https://testnet.monadexplorer.com/tx/${payload.txHash}` : null;
 
     return {

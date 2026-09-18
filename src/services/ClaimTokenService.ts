@@ -144,7 +144,7 @@ export class ClaimTokenService {
    * Generates a fully qualified, self-contained cross-device claim URL
    */
   public static buildClaimUrl(record: PaymentRecord): string {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://beyini.app';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://beyini.paaco.xyz';
     const encoded = this.encodePayment(record);
     return `${origin}/#claim?p=${encodeURIComponent(encoded)}`;
   }

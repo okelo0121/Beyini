@@ -38,27 +38,25 @@ function paymentsApiPlugin(): Plugin {
       server.middlewares.use((req, res, next) => {
         const url = req.url || '';
 
-        // POST /api/faucet - Drips 0.05 MON for testnet gas
-        if (url.startsWith('/api/faucet') && req.method === 'POST') {
+        // POST or GET /api/faucet - Drips 0.05 MON for testnet gas
+        if (url.startsWith('/api/faucet') && (req.method === 'POST' || req.method === 'GET')) {
           res.setHeader('Content-Type', 'application/json');
-          let body = '';
-          req.on('data', (chunk) => { body += chunk; });
-          req.on('end', async () => {
+          const executeDrip = async (targetAddr: string) => {
             try {
-              const { address } = JSON.parse(body);
-              if (!address || !address.startsWith('0x')) {
+              if (!targetAddr || !targetAddr.startsWith('0x')) {
                 res.statusCode = 400;
                 return res.end(JSON.stringify({ error: 'Valid 0x address required' }));
               }
 
-              const envContent = fs.readFileSync(path.resolve(import.meta.dirname, '.env.local'), 'utf8');
+              const envContent = fs.existsSync(path.resolve(import.meta.dirname, '.env.local')) 
+                ? fs.readFileSync(path.resolve(import.meta.dirname, '.env.local'), 'utf8') 
+                : '';
               const keyMatch = envContent.match(/MONAD_DEPLOYER_KEY=([a-fA-F0-9x]+)/);
-              if (!keyMatch) {
+              let pkey = process.env.MONAD_DEPLOYER_KEY || (keyMatch ? keyMatch[1].trim() : '');
+              if (!pkey) {
                 res.statusCode = 500;
-                return res.end(JSON.stringify({ error: 'Deployer key not found' }));
+                return res.end(JSON.stringify({ error: 'MONAD_DEPLOYER_KEY not configured' }));
               }
-
-              let pkey = keyMatch[1].trim();
               if (!pkey.startsWith('0x')) pkey = `0x${pkey}`;
 
               const { createWalletClient, createPublicClient, http, parseEther } = await import('viem');
@@ -75,8 +73,14 @@ function paymentsApiPlugin(): Plugin {
               const walletClient = createWalletClient({ account, chain: monadTestnet, transport: http('https://testnet-rpc.monad.xyz') });
               const publicClient = createPublicClient({ chain: monadTestnet, transport: http('https://testnet-rpc.monad.xyz') });
 
+              const currentBal = await publicClient.getBalance({ address: targetAddr as `0x${string}` });
+              if (currentBal > parseEther('0.5')) {
+                res.statusCode = 200;
+                return res.end(JSON.stringify({ success: true, amount: '0 MON', message: 'Sufficient balance' }));
+              }
+
               const hash = await walletClient.sendTransaction({
-                to: address as `0x${string}`,
+                to: targetAddr as `0x${string}`,
                 value: parseEther('0.05'),
               });
 
@@ -88,6 +92,25 @@ function paymentsApiPlugin(): Plugin {
               console.error('Faucet error:', err);
               res.statusCode = 500;
               return res.end(JSON.stringify({ error: err.message }));
+            }
+          };
+
+          if (req.method === 'GET') {
+            const queryParams = new URLSearchParams(url.includes('?') ? url.split('?')[1] : '');
+            const addr = queryParams.get('address') || '';
+            executeDrip(addr);
+            return;
+          }
+
+          let body = '';
+          req.on('data', (chunk) => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { address } = JSON.parse(body || '{}');
+              executeDrip(address);
+            } catch {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid JSON body' }));
             }
           });
           return;
@@ -129,7 +152,7 @@ function paymentsApiPlugin(): Plugin {
               if (type === 'CLAIM_INVITATION') {
                 subject = `💰 You received $${amountStr} USDC on Monad via Beyini`;
                 const sName = senderName || 'A friend';
-                const cUrl = claimUrl || 'https://beyini.app';
+                const cUrl = claimUrl || 'https://beyini.paaco.xyz';
                 const explorerUrl = txHash ? `https://testnet.monadexplorer.com/tx/${txHash}` : null;
 
                 html = `

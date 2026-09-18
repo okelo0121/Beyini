@@ -9,19 +9,28 @@ const monadTestnet = {
 };
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed. Use POST or GET.' });
   }
 
   try {
-    const { address } = req.body || {};
-    if (!address || typeof address !== 'string' || !address.startsWith('0x')) {
-      return res.status(400).json({ error: 'Valid 0x address required' });
+    const address = req.body?.address || req.query?.address;
+    if (!address || typeof address !== 'string' || !address.startsWith('0x') || address.length !== 42) {
+      return res.status(400).json({ error: 'Valid 0x EVM address required' });
     }
 
-    let pkey = process.env.MONAD_DEPLOYER_KEY || '';
+    let pkey = process.env.MONAD_DEPLOYER_KEY;
     if (!pkey) {
-      return res.status(500).json({ error: 'Faucet deployer key not configured' });
+      return res.status(500).json({ error: 'MONAD_DEPLOYER_KEY not configured on server' });
     }
     if (!pkey.startsWith('0x')) pkey = `0x${pkey}`;
 
@@ -36,6 +45,17 @@ export default async function handler(req: any, res: any) {
       transport: http('https://testnet-rpc.monad.xyz'),
     });
 
+    // Check recipient's current balance; don't over-fund if they already have plenty
+    const currentBal = await publicClient.getBalance({ address: address as `0x${string}` });
+    if (currentBal > parseEther('0.5')) {
+      return res.status(200).json({
+        success: true,
+        message: 'Wallet already has sufficient gas balance',
+        amount: '0 MON',
+        currentBalance: currentBal.toString(),
+      });
+    }
+
     const hash = await walletClient.sendTransaction({
       to: address as `0x${string}`,
       value: parseEther('0.05'),
@@ -43,7 +63,12 @@ export default async function handler(req: any, res: any) {
 
     await publicClient.waitForTransactionReceipt({ hash });
 
-    return res.status(200).json({ success: true, txHash: hash, amount: '0.05 MON' });
+    return res.status(200).json({
+      success: true,
+      txHash: hash,
+      amount: '0.05 MON',
+      recipient: address,
+    });
   } catch (err: any) {
     console.error('Faucet execution error:', err);
     return res.status(500).json({ error: err?.message || 'Faucet failure' });

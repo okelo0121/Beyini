@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { parseUnits, parseEther, encodeFunctionData } from 'viem';
+import { parseUnits, encodeFunctionData } from 'viem';
 import { monadPublicClient, USDC_ABI } from './client';
 import { MONAD_USDC_ADDRESS, BEYINI_ESCROW_ADDRESS } from '../auth/privyConfig';
 import { useBeyiniAuth } from '../auth/useBeyiniAuth';
+import { GasSponsorshipService } from '../services/GasSponsorshipService';
 import BeyiniEscrowArtifact from './artifacts/BeyiniEscrow.json';
 
 export const BEYINI_ESCROW_ABI = BeyiniEscrowArtifact.abi;
@@ -27,33 +28,6 @@ export function useMonadEscrow() {
   const walletAddress = (beyiniUser?.walletAddress || user?.wallet?.address) as `0x${string}` | undefined;
 
   /**
-   * Ensures the wallet has sufficient MON native token for gas.
-   * If balance < 0.005 MON, automatically requests 0.05 MON from /api/faucet.
-   */
-  const ensureGasBalance = useCallback(async (targetAddress?: `0x${string}`): Promise<void> => {
-    const address = targetAddress || walletAddress;
-    if (!address) return;
-
-    try {
-      const balance = await monadPublicClient.getBalance({ address });
-      if (balance < parseEther('0.005')) {
-        console.log(`Low gas balance on ${address}. Requesting auto-drip from /api/faucet...`);
-        const res = await fetch('/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address }),
-        });
-        if (res.ok) {
-          console.log('Gas successfully funded from faucet.');
-          await new Promise((resolve) => setTimeout(resolve, 1200));
-        }
-      }
-    } catch (err) {
-      console.warn('Auto gas balance check failed:', err);
-    }
-  }, [walletAddress]);
-
-  /**
    * Checks how much USDC the escrow contract is approved to spend on behalf of the user
    */
   const checkAllowance = useCallback(async (ownerAddress?: `0x${string}`): Promise<bigint> => {
@@ -75,15 +49,18 @@ export function useMonadEscrow() {
   }, [walletAddress]);
 
   /**
-   * Approves BeyiniEscrow to spend USDC
+   * Approves BeyiniEscrow to spend USDC, automatically sponsoring gas if needed
    */
-  const approveUSDC = useCallback(async (amountUSDC: string): Promise<{ txHash: string }> => {
+  const approveUSDC = useCallback(async (
+    amountUSDC: string,
+    onStatusUpdate?: (status: string) => void
+  ): Promise<{ txHash: string }> => {
     if (!walletAddress) throw new Error('Wallet not connected');
     setIsLoading(true);
     setError(null);
 
     try {
-      await ensureGasBalance(walletAddress);
+      await GasSponsorshipService.checkAndSponsorGas(walletAddress, onStatusUpdate);
 
       const amountUnits = parseUnits(amountUSDC, 6);
       const data = encodeFunctionData({
@@ -92,11 +69,28 @@ export function useMonadEscrow() {
         args: [BEYINI_ESCROW_ADDRESS, amountUnits],
       });
 
-      const tx = await sendTransaction({
-        to: MONAD_USDC_ADDRESS,
-        data,
-        chainId: 10143,
-      });
+      let tx: { hash: string };
+      try {
+        tx = await sendTransaction({
+          to: MONAD_USDC_ADDRESS,
+          data,
+          chainId: 10143,
+        });
+      } catch (txErr: any) {
+        const errDetails = txErr?.message || txErr?.details || '';
+        if (errDetails.includes('insufficient balance')) {
+          console.log('[useMonadEscrow] Insufficient gas detected on approval. Sponsoring and retrying...');
+          if (onStatusUpdate) onStatusUpdate('Sponsoring Monad network gas for you...');
+          await GasSponsorshipService.checkAndSponsorGas(walletAddress, onStatusUpdate);
+          tx = await sendTransaction({
+            to: MONAD_USDC_ADDRESS,
+            data,
+            chainId: 10143,
+          });
+        } else {
+          throw txErr;
+        }
+      }
 
       // Wait for receipt on Monad single-slot finality
       await monadPublicClient.waitForTransactionReceipt({ hash: tx.hash as `0x${string}` });
@@ -104,51 +98,47 @@ export function useMonadEscrow() {
       return { txHash: tx.hash };
     } catch (err: any) {
       console.error('USDC approval error:', err);
-      let msg = err?.message || 'USDC approval failed';
-      if (msg.includes('insufficient balance') || err?.details?.includes('insufficient balance')) {
-        msg = 'Your Monad wallet had insufficient MON for transaction gas. 0.05 MON has been dripped to your wallet. Please click Send again!';
-        fetch('/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address: walletAddress }),
-        }).catch(() => {});
-      }
+      const msg = err?.message || 'USDC approval failed';
       setError(msg);
       throw new Error(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [walletAddress, sendTransaction, ensureGasBalance]);
+  }, [walletAddress, sendTransaction]);
 
   /**
-   * Deposits USDC into BeyiniEscrow with a Zero-PII commitment
+   * Deposits USDC into BeyiniEscrow with a Zero-PII commitment, automatically sponsoring gas if needed
    */
   const depositToEscrow = useCallback(async ({
     paymentId,
     commitment,
     amountUSDC,
     durationSeconds = 86400, // 24 hours
+    onStatusUpdate,
   }: {
     paymentId: `0x${string}`;
     commitment: `0x${string}`;
     amountUSDC: string;
     durationSeconds?: number;
+    onStatusUpdate?: (status: string) => void;
   }): Promise<{ txHash: string; blockNumber: bigint }> => {
     if (!walletAddress) throw new Error('Wallet not connected');
     setIsLoading(true);
     setError(null);
 
     try {
-      await ensureGasBalance(walletAddress);
+      await GasSponsorshipService.checkAndSponsorGas(walletAddress, onStatusUpdate);
 
       const amountUnits = parseUnits(amountUSDC, 6);
 
       // Verify allowance first
       const allowance = await checkAllowance(walletAddress);
       if (allowance < amountUnits) {
-        // Need approval first
-        await approveUSDC(amountUSDC);
+        if (onStatusUpdate) onStatusUpdate('Authorizing USDC for BeyiniEscrow on Monad...');
+        await approveUSDC(amountUSDC, onStatusUpdate);
       }
+
+      if (onStatusUpdate) onStatusUpdate('Securing funds in BeyiniEscrow on Monad...');
 
       const data = encodeFunctionData({
         abi: BEYINI_ESCROW_ABI,
@@ -162,11 +152,28 @@ export function useMonadEscrow() {
         ],
       });
 
-      const tx = await sendTransaction({
-        to: BEYINI_ESCROW_ADDRESS,
-        data,
-        chainId: 10143,
-      });
+      let tx: { hash: string };
+      try {
+        tx = await sendTransaction({
+          to: BEYINI_ESCROW_ADDRESS,
+          data,
+          chainId: 10143,
+        });
+      } catch (txErr: any) {
+        const errDetails = txErr?.message || txErr?.details || '';
+        if (errDetails.includes('insufficient balance')) {
+          console.log('[useMonadEscrow] Insufficient gas detected on deposit. Sponsoring and retrying...');
+          if (onStatusUpdate) onStatusUpdate('Sponsoring Monad network gas for you...');
+          await GasSponsorshipService.checkAndSponsorGas(walletAddress, onStatusUpdate);
+          tx = await sendTransaction({
+            to: BEYINI_ESCROW_ADDRESS,
+            data,
+            chainId: 10143,
+          });
+        } else {
+          throw txErr;
+        }
+      }
 
       const receipt = await monadPublicClient.waitForTransactionReceipt({
         hash: tx.hash as `0x${string}`,
@@ -178,21 +185,13 @@ export function useMonadEscrow() {
       };
     } catch (err: any) {
       console.error('Escrow deposit error:', err);
-      let msg = err?.message || 'Escrow deposit failed on Monad Testnet';
-      if (msg.includes('insufficient balance') || err?.details?.includes('insufficient balance')) {
-        msg = 'Your Monad wallet had insufficient MON for transaction gas. 0.05 MON has been dripped to your wallet. Please click Send again!';
-        fetch('/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address: walletAddress }),
-        }).catch(() => {});
-      }
+      const msg = err?.message || 'Escrow deposit failed on Monad Testnet';
       setError(msg);
       throw new Error(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [walletAddress, sendTransaction, checkAllowance, approveUSDC, ensureGasBalance]);
+  }, [walletAddress, sendTransaction, checkAllowance, approveUSDC]);
 
   /**
    * Claims escrow funds by revealing the preimage (identifierHash + salt)
@@ -212,7 +211,8 @@ export function useMonadEscrow() {
     setError(null);
 
     try {
-      await ensureGasBalance(walletAddress || destination);
+      const activeAddr = walletAddress || destination;
+      await GasSponsorshipService.checkAndSponsorGas(activeAddr);
 
       const data = encodeFunctionData({
         abi: BEYINI_ESCROW_ABI,
@@ -238,7 +238,7 @@ export function useMonadEscrow() {
     } finally {
       setIsLoading(false);
     }
-  }, [sendTransaction, ensureGasBalance, walletAddress]);
+  }, [sendTransaction, walletAddress]);
 
   /**
    * Queries payment record directly from Monad Testnet on-chain source of truth
@@ -277,7 +277,7 @@ export function useMonadEscrow() {
   return {
     isLoading,
     error,
-    ensureGasBalance,
+    ensureGasBalance: GasSponsorshipService.checkAndSponsorGas,
     checkAllowance,
     approveUSDC,
     depositToEscrow,
